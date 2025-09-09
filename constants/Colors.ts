@@ -19,6 +19,7 @@ export const Colors: Record<ColorScheme, ThemeColors> = {
     tabBarInactive: '#8E8E93',
     fontFamily: 'System',
     fontFamilyArabic: 'IBM Plex Sans Arabic',
+    fontSecondary:'#B0B0B0'
   },
   dark: {
     background: '#000000',
@@ -39,6 +40,7 @@ export const Colors: Record<ColorScheme, ThemeColors> = {
     tabBarInactive: '#8E8E93',
     fontFamily: 'System',
     fontFamilyArabic: 'IBM Plex Sans Arabic',
+    fontSecondary:'#B0B0B0'
   },
 };
 
@@ -61,6 +63,7 @@ export type ThemeColors = {
   tabBarInactive: string;
   fontFamily: string;
   fontFamilyArabic: string;
+  fontSecondary:string;
 };
 
 export type ColorScheme = 'light' | 'dark';

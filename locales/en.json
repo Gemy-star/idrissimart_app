@@ -16,6 +16,13 @@
     "done": "Done",
     "close": "Close"
   },
+  "notifications": {
+    "title": "Notifications"
+  },
+  "messages": {
+    "title": "Messages",
+    "searchPlaceholder": "Search here..."
+  },
   "header": {
     "welcome": " Welcome {{name}}",
     "subtitle": "Global Ranking Conference 2025"
@@ -38,7 +45,10 @@
     "index": "Home",
     "news": "News",
     "weather": "Weather",
-    "profile": "Profile"
+    "profile": "Profile",
+    "notifications": "Notifications",
+    "notification": "Notification",
+    "messages": "Messages"
   },
   "home": {
     "title": "Global Resource Finder",
@@ -47,7 +57,13 @@
     "activeUsers": "Active Users",
     "growth": "Growth",
     "recentActivity": "Recent Activity",
-    "hoursAgo": "{{count}} hours ago"
+    "hoursAgo": "{{count}} hours ago",
+    "browseConference": "Browse Conference",
+    "linkingAndEnabling": "Linking and Enabling",
+    "information": "Information",
+    "layers": "Layers",
+    "circles": "Circles",
+    "quotient": "Quotient"
   },
   "news": {
     "title": "Latest News",
@@ -70,6 +86,28 @@
   },
   "profile": {
     "title": "Profile",
+    "aboutMe": "About Me",
+    "aboutMeText": "An expert in technology and digital transformation. I have worked with leading companies in developing technical solutions for the public and global forum in Saudi Arabia.",
+    "type": "Type",
+    "tech": "Tech",
+    "area": "Area",
+    "aboutTextTwo": "From Saudi Arabia to European destinations to finance education using technology.",
+    "position": "Position",
+    "mainSpeaker": "Main Speaker",
+    "field": "Field",
+    "fieldValue": "Silk Marketer",
+    "company": "Company",
+    "companyValue": "The company's industrial specialist",
+    "jobTitle": "Job Title",
+    "jobTitleValue": "Specify work",
+    "role": "Role",
+    "roleValue": "Technical Member (CTO)",
+    "nationality": "Nationality",
+    "nationalityValue": "Kingdom of Saudi Arabia",
+    "from": "From",
+    "fromValue": "From 2018",
+    "personalSocials": "Personal Socials",
+    "language": "Language",
     "personalInformation": "Personal Information",
     "email": "Email",
     "phone": "Phone",
@@ -77,7 +115,6 @@
     "preferences": "Preferences",
     "notifications": "Notifications",
     "darkMode": "Dark Mode",
-    "language": "Language",
     "privacySecurity": "Privacy & Security",
     "appSettings": "App Settings",
     "about": "About",

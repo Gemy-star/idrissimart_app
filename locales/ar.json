@@ -20,6 +20,13 @@
     "welcome": "مرحباً بك {{name}}",
     "subtitle": "مؤتمر التصنيف العالمي 2025"
   },
+  "notifications": {
+    "title": "الأشعارات"
+  },
+  "messages": {
+    "title": "الرسائل",
+    "searchPlaceholder": "أبحث هنا.."
+  },
   "welcomeCard": {
     "title": "ملتقى التصنيف العالمي في السعودية يرحب بك",
     "subtitle": "يسعدنا مشاركتك في ملتقى التصنيف العالمي. تصفح جدول فعالياتك، موقع القاعات، والمتحدثين المميزين."
@@ -38,7 +45,10 @@
     "index": "الرئيسية",
     "news": "الأخبار",
     "weather": "الطقس",
-    "profile": "الملف الشخصي"
+    "profile": "الملف الشخصي",
+    "notifications": "الأشعارات",
+    "notification": "الإشعار",
+    "messages": "الرسائل"
   },
   "home": {
     "title": "باحث الموارد العالمية",
@@ -47,7 +57,13 @@
     "activeUsers": "المستخدمون النشطون",
     "growth": "النمو",
     "recentActivity": "النشاط الحديث",
-    "hoursAgo": "منذ {{count}} ساعات"
+    "hoursAgo": "منذ {{count}} ساعات",
+    "browseConference": "تصفح المؤتمر",
+    "linkingAndEnabling": "الربط والتمكين",
+    "information": "معلومات",
+    "layers": "الطبقات",
+    "circles": "الدوائر",
+    "quotient": "النسبة"
   },
   "news": {
     "title": "آخر الأخبار",
@@ -70,6 +86,28 @@
   },
   "profile": {
     "title": "الملف الشخصي",
+    "aboutMe": "نبذة عني",
+    "aboutMeText": "خبير في التكنولوجيا والتحول الرقمي. عملت مع شركات رائدة في تطوير الحلول التقنية للملتقى العام والعالمي في السعودية.",
+    "type": "النوع",
+    "tech": "تقني",
+    "area": "المساحة",
+    "aboutTextTwo": "من السعودية إلى وجهات أوروبية لتموين التعليم باستخدام التكنولوجيا.",
+    "position": "المنصب",
+    "mainSpeaker": "المتحدث الرئيسي",
+    "field": "المجال",
+    "fieldValue": "مسوق حريرة",
+    "company": "الشركة",
+    "companyValue": "المتخصص الصناعي للشركة",
+    "jobTitle": "المهنة",
+    "jobTitleValue": "تحديد العمل",
+    "role": "الدور",
+    "roleValue": "عضو فني (CTO)",
+    "nationality": "الجنسية",
+    "nationalityValue": "المملكة العربية السعودية",
+    "from": "من",
+    "fromValue": "من 2018",
+    "personalSocials": "المواقع الشخصية",
+    "language": "اللغة",
     "personalInformation": "المعلومات الشخصية",
     "email": "البريد الإلكتروني",
     "phone": "الهاتف",
@@ -77,7 +115,6 @@
     "preferences": "التفضيلات",
     "notifications": "الإشعارات",
     "darkMode": "الوضع المظلم",
-    "language": "اللغة",
     "privacySecurity": "الخصوصية والأمان",
     "appSettings": "إعدادات التطبيق",
     "about": "حول",

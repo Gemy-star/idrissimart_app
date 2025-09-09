@@ -2,7 +2,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useTypography } from '@/hooks/useTypography';
 import { Tabs } from 'expo-router';
-import { Cloud, Home, Newspaper, User } from 'lucide-react-native';
+import { Bell, Cloud, Home, MessageSquare, Newspaper, User } from 'lucide-react-native';
 import React from 'react';
 
 export default function TabLayout() {
@@ -36,9 +36,15 @@ export default function TabLayout() {
           case 'cloud':
             IconComponent = Cloud;
             break;
+          case 'messages':
+              IconComponent = MessageSquare;
+              break;
           case 'profile':
             IconComponent = User;
             break;
+          case 'notification':
+              IconComponent = Bell;
+             break;
           default:
             IconComponent = Home;
         }

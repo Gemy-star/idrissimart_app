@@ -11,9 +11,9 @@ interface CardProps {
   borderRadius?: keyof typeof BorderRadius;
 }
 
-export function Card({ 
-  children, 
-  style, 
+export function Card({
+  children,
+  style,
   padding = 'base',
   shadow = 'base',
   borderRadius = 'lg'
@@ -21,7 +21,7 @@ export function Card({
   const { colors } = useTheme();
 
   return (
-    <View 
+    <View
       style={[
         {
           backgroundColor: colors.surface,
