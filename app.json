@@ -4,17 +4,24 @@
     "slug": "bolt-expo-nativewind",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/logos/logo.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "icon": "./assets/logos/logo.png"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/logos/logo.png",
+        "backgroundColor": "#4b315e"
+      }
     },
     "web": {
       "bundler": "metro",
       "output": "single",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/logos/mini-logo-dark-theme.png"
     },
     "plugins": [
       "expo-router",

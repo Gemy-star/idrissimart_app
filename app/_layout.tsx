@@ -4,10 +4,11 @@ import { LanguageProvider } from '@/contexts/LanguageContext';
 import { LoadingProvider } from '@/contexts/LoadingContext';
 import { SidebarProvider, useSidebar } from '@/contexts/SidebarContext';
 import { ThemeProvider } from '@/contexts/ThemeContext';
+import { store } from '@/store';
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
-import React from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { Provider } from 'react-redux';
 
 const LayoutContent = () => {
   const { isVisible } = useSidebar();
@@ -35,17 +36,19 @@ export default function RootLayout() {
   }
 
   return (
-    <ThemeProvider>
-      <LanguageProvider>
-        <SidebarProvider>
-          <LoadingProvider>
-            <View style={styles.appContainer}>
-              <LayoutContent />
-            </View>
-          </LoadingProvider>
-        </SidebarProvider>
-      </LanguageProvider>
-    </ThemeProvider>
+    <Provider store={store}>
+      <ThemeProvider>
+        <LanguageProvider>
+          <SidebarProvider>
+            <LoadingProvider>
+              <View style={styles.appContainer}>
+                <LayoutContent />
+              </View>
+            </LoadingProvider>
+          </SidebarProvider>
+        </LanguageProvider>
+      </ThemeProvider>
+    </Provider>
   );
 }
 
