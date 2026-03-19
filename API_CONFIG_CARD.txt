@@ -1,0 +1,107 @@
+┌─────────────────────────────────────────────────────────────────┐
+│                   🌍 API ENVIRONMENT CONFIG                     │
+│                    Quick Reference Card                         │
+└─────────────────────────────────────────────────────────────────┘
+
+📍 AUTOMATIC CONFIGURATION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✅ Development Mode (__DEV__ = true)
+   iOS Simulator:    http://localhost:5454/api
+   Android Emulator: http://10.0.2.2:5454/api
+   
+✅ Production Mode (__DEV__ = false)
+   All Platforms:    https://idrissimart.com/api
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📱 PLATFORM SUPPORT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Platform           | Development URL
+─────────────────────────────────────────────────────────────
+iOS Simulator      | http://localhost:5454/api
+Android Emulator   | http://10.0.2.2:5454/api ⭐
+Physical Device    | http://YOUR_IP:5454/api ⚠️
+
+⭐ Automatically configured
+⚠️ Requires manual setup (see API_ENVIRONMENT.md)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🏃 RUNNING THE APP
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Development (local API):
+  $ npm start
+  $ npx expo start
+
+Production (live API):
+  $ eas build --platform ios --profile production
+  $ eas build --platform android --profile production
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔧 BACKEND SETUP
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Start Django backend:
+  $ python manage.py runserver 0.0.0.0:5454
+
+Important: Use 0.0.0.0 to allow connections from devices!
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔍 DEBUG LOGGING
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Check console on app start:
+
+Development:
+  🔧 API Configuration: {
+    environment: 'DEVELOPMENT',
+    platform: 'ios',
+    baseURL: 'http://localhost:5454/api'
+  }
+
+Production:
+  🚀 API Configuration: {
+    environment: 'PRODUCTION',
+    baseURL: 'https://idrissimart.com/api'
+  }
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+⚙️  MANUAL OVERRIDE (Optional)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+import { setApiBaseURL } from '@/config/api.config';
+
+// Test against staging
+setApiBaseURL('https://staging.idrissimart.com/api');
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🆘 TROUBLESHOOTING
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Issue                        | Solution
+──────────────────────────────────────────────────────────────
+Network failed (Android)     | ✅ Already uses 10.0.2.2
+Network failed (Physical)    | Update to your IP: 192.168.x.x
+Backend unreachable          | Run on 0.0.0.0:5454
+CORS errors                  | Add IP to backend CORS settings
+Connection refused           | Check backend is running
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📚 DOCUMENTATION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📄 config/api.config.ts        - Main configuration
+📄 config/environment.ts        - Environment utilities
+📘 config/API_ENVIRONMENT.md    - Detailed setup guide
+📗 REDUX_API_GUIDE.md           - API usage documentation
+📕 ENVIRONMENT_SETUP.md         - This setup summary
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ STATUS: READY TO USE
+No additional configuration needed! The app automatically selects
+the correct API URL based on your build mode.
+
+For physical device testing, see: config/API_ENVIRONMENT.md
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
