@@ -192,6 +192,36 @@ export interface Ad {
   expires_at: string;
 }
 
+export interface BlogCategory {
+  id: number;
+  name: string;
+  name_en: string;
+  slug: string;
+  description: string;
+  icon: string;
+  color: string;
+  order: number;
+  is_active: boolean;
+  blogs_count: number;
+}
+
+export interface BlogComment {
+  id: number;
+  blog: number;
+  author: {
+    id: number;
+    username: string;
+    first_name: string;
+    last_name: string;
+    profile_image: string | null;
+  };
+  body: string;
+  created_on: string;
+  active: boolean;
+  parent: number | null;
+  replies: BlogComment[];
+}
+
 export interface BlogPost {
   id: number;
   title: string;
@@ -208,18 +238,7 @@ export interface BlogPost {
     profile_type: string;
     rank: string;
   };
-  category: {
-    id: number;
-    name: string;
-    name_en: string;
-    slug: string;
-    description: string;
-    icon: string;
-    color: string;
-    order: number;
-    is_active: boolean;
-    blogs_count: number;
-  };
+  category: BlogCategory | null;
   image: string;
   published_date: string;
   views_count: number;
@@ -228,13 +247,38 @@ export interface BlogPost {
   is_published: boolean;
 }
 
+export interface BlogPostDetail extends BlogPost {
+  content: string;
+  updated_date: string;
+  comments: BlogComment[];
+  tags: string[];
+}
+
 export interface BlogsListResponse {
-  blogs?: BlogPost[];
   results?: BlogPost[];
   count?: number;
-  total?: number;
-  page?: number;
   total_pages?: number;
+  next?: string | null;
+  previous?: string | null;
+}
+
+export interface CategoriesListParams {
+  section_type?: string;
+  parent?: number;
+  country?: number;
+  search?: string;
+}
+
+export interface CategoriesListResponse {
+  count?: number;
+  next?: string | null;
+  previous?: string | null;
+  results?: Category[];
+}
+
+export interface BlogCategoriesResponse {
+  results?: BlogCategory[];
+  count?: number;
   next?: string | null;
   previous?: string | null;
 }
@@ -242,9 +286,9 @@ export interface BlogsListResponse {
 export interface BlogsListParams {
   search?: string;
   category?: number;
-  sort_by?: string;
+  author?: number;
+  ordering?: string;
   page?: number;
-  limit?: number;
 }
 
 export interface AdsListResponse {
@@ -347,6 +391,27 @@ class ApiService {
     return this.request<HomePageResponse>(url);
   }
 
+  // Idrissimart Categories API
+  async getCategories(params: CategoriesListParams = {}) {
+    const query = new URLSearchParams();
+    Object.entries(params).forEach(([k, v]) => {
+      if (v !== undefined && v !== null && v !== '') {
+        query.append(k, String(v));
+      }
+    });
+    return this.request<CategoriesListResponse>(`${this.idrissiMartUrl}/categories/?${query.toString()}`);
+  }
+
+  async getRootCategories(section_type?: string) {
+    const query = new URLSearchParams();
+    if (section_type) query.append('section_type', section_type);
+    return this.request<Category[]>(`${this.idrissiMartUrl}/categories/root_categories/?${query.toString()}`);
+  }
+
+  async getCategoryDetail(id: number) {
+    return this.request<Category>(`${this.idrissiMartUrl}/categories/${id}/`);
+  }
+
   // Idrissimart Blogs API
   async getBlogPosts(params: BlogsListParams = {}) {
     const query = new URLSearchParams();
@@ -355,7 +420,33 @@ class ApiService {
         query.append(k, String(v));
       }
     });
-    return this.request<BlogsListResponse>(`${this.idrissiMartUrl}/blog/posts/?${query.toString()}`);
+    return this.request<BlogsListResponse>(`${this.idrissiMartUrl}/blogs/?${query.toString()}`);
+  }
+
+  async getBlogCategories() {
+    return this.request<BlogCategoriesResponse>(`${this.idrissiMartUrl}/blog-categories/`);
+  }
+
+  async getBlogPost(id: number) {
+    return this.request<BlogPostDetail>(`${this.idrissiMartUrl}/blogs/${id}/`);
+  }
+
+  async likeBlogPost(id: number) {
+    return this.request<{ status: 'liked' | 'unliked'; likes_count: number }>(
+      `${this.idrissiMartUrl}/blogs/${id}/like/`,
+      { method: 'POST' },
+    );
+  }
+
+  async addBlogComment(id: number, body: string, parent?: number | null) {
+    return this.request<BlogComment>(
+      `${this.idrissiMartUrl}/blogs/${id}/comment/`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ body, parent: parent ?? null }),
+      },
+    );
   }
 
   // Idrissimart Ads API

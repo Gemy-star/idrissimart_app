@@ -1,19 +1,22 @@
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTheme } from '@/contexts/ThemeContext';
+import { Category, api } from '@/services/api';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { Search, SlidersHorizontal } from 'lucide-react-native';
-import React, { useMemo, useState } from 'react';
+import { Search } from 'lucide-react-native';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
-  Dimensions,
-  FlatList,
-  Platform,
-  StatusBar,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Dimensions,
+    FlatList,
+    Platform,
+    RefreshControl,
+    StatusBar,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 
 const { width } = Dimensions.get('window');
@@ -21,26 +24,9 @@ const CARD_MARGIN = 12;
 const NUM_COLUMNS = 2;
 const CARD_WIDTH = (width - 32 - CARD_MARGIN * (NUM_COLUMNS - 1)) / NUM_COLUMNS;
 
-// Mock categories data – replace with real API data from Redux store
-const MOCK_CATEGORIES = [
-  { id: 1, name: 'Real Estate', name_ar: 'عقارات', icon: 'home', ads_count: 1240, color: '#4b315e' },
-  { id: 2, name: 'Vehicles', name_ar: 'مركبات', icon: 'car', ads_count: 876, color: '#ff6001' },
-  { id: 3, name: 'Electronics', name_ar: 'إلكترونيات', icon: 'laptop', ads_count: 654, color: '#2563EB' },
-  { id: 4, name: 'Furniture', name_ar: 'أثاث', icon: 'couch', ads_count: 423, color: '#D97706' },
-  { id: 5, name: 'Fashion', name_ar: 'أزياء', icon: 'tshirt', ads_count: 389, color: '#DB2777' },
-  { id: 6, name: 'Jobs', name_ar: 'وظائف', icon: 'briefcase', ads_count: 712, color: '#059669' },
-  { id: 7, name: 'Services', name_ar: 'خدمات', icon: 'tools', ads_count: 534, color: '#7C3AED' },
-  { id: 8, name: 'Animals', name_ar: 'حيوانات', icon: 'paw', ads_count: 201, color: '#B45309' },
-  { id: 9, name: 'Kids', name_ar: 'أطفال', icon: 'baby', ads_count: 178, color: '#0891B2' },
-  { id: 10, name: 'Sports', name_ar: 'رياضة', icon: 'football-ball', ads_count: 298, color: '#16A34A' },
-  { id: 11, name: 'Books', name_ar: 'كتب', icon: 'book', ads_count: 145, color: '#9333EA' },
-  { id: 12, name: 'Garden', name_ar: 'حديقة', icon: 'seedling', ads_count: 93, color: '#65A30D' },
-];
-
 const FILTER_TABS = [
-  { key: 'all', label: 'All', label_ar: 'الكل' },
-  { key: 'popular', label: 'Popular', label_ar: 'الأكثر طلباً' },
-  { key: 'new', label: 'New', label_ar: 'جديد' },
+  { key: 'all',     label: 'All',       label_ar: 'الكل'         },
+  { key: 'popular', label: 'Popular',   label_ar: 'الأكثر طلباً' },
 ];
 
 export default function CategoriesScreen() {
@@ -48,11 +34,49 @@ export default function CategoriesScreen() {
   const { language, t } = useLanguage();
   const isArabic = language === 'ar';
 
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [activeFilter, setActiveFilter] = useState('all');
+  const searchTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const filtered = useMemo(() => {
-    let list = MOCK_CATEGORIES;
+  const fetchCategories = useCallback(async () => {
+    try {
+      const response = await api.getRootCategories();
+      if (response.success && response.data) {
+        const list = Array.isArray(response.data) ? response.data : [];
+        setCategories(list);
+        setError(null);
+      } else {
+        setError(response.error ?? 'Failed to load categories');
+      }
+    } catch {
+      setError('Failed to load categories');
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchCategories();
+  }, [fetchCategories]);
+
+  const handleSearch = (text: string) => {
+    setSearch(text);
+    if (searchTimeout.current) clearTimeout(searchTimeout.current);
+    searchTimeout.current = setTimeout(() => {}, 400);
+  };
+
+  const handleRefresh = () => {
+    setRefreshing(true);
+    fetchCategories();
+  };
+
+  const filtered = (() => {
+    let list = categories;
     if (search.trim()) {
       const q = search.toLowerCase();
       list = list.filter((c) =>
@@ -60,23 +84,26 @@ export default function CategoriesScreen() {
       );
     }
     if (activeFilter === 'popular') {
-      list = [...list].sort((a, b) => b.ads_count - a.ads_count);
+      list = [...list].sort((a, b) => (b.ads_count ?? 0) - (a.ads_count ?? 0));
     }
     return list;
-  }, [search, activeFilter, isArabic]);
+  })();
 
-  const renderCategory = ({ item }: { item: typeof MOCK_CATEGORIES[0] }) => {
+  const renderCategory = ({ item }: { item: Category }) => {
     const name = isArabic ? item.name_ar : item.name;
+    const iconName = (item.icon?.split(' ').pop() || 'folder').replace(/^fa-/, '');
+    const cardColor = (item as any).color || colors.primary;
+
     return (
       <TouchableOpacity
         style={[styles.card, { backgroundColor: colors.surface }]}
         activeOpacity={0.75}
-        onPress={() => {}}
+        onPress={() => router.push({ pathname: '/(tabs)/ads', params: { category: item.id } } as any)}
       >
         {/* Icon circle */}
-        <View style={[styles.iconCircle, { backgroundColor: item.color + '18' }]}>
-          <View style={[styles.iconInner, { backgroundColor: item.color + '30' }]}>
-            <FontAwesome5 name={item.icon as any} size={26} color={item.color} />
+        <View style={[styles.iconCircle, { backgroundColor: cardColor + '18' }]}>
+          <View style={[styles.iconInner, { backgroundColor: cardColor + '30' }]}>
+            <FontAwesome5 name={iconName as any} size={26} color={cardColor} solid />
           </View>
         </View>
 
@@ -89,14 +116,16 @@ export default function CategoriesScreen() {
         </Text>
 
         {/* Count badge */}
-        <View style={[styles.badge, { backgroundColor: item.color + '18' }]}>
-          <Text style={[styles.badgeText, { color: item.color }]}>
-            {item.ads_count.toLocaleString()} {t('home.ads')}
-          </Text>
-        </View>
+        {item.ads_count !== undefined && (
+          <View style={[styles.badge, { backgroundColor: cardColor + '18' }]}>
+            <Text style={[styles.badgeText, { color: cardColor }]}>
+              {item.ads_count.toLocaleString()} {t('home.ads')}
+            </Text>
+          </View>
+        )}
 
         {/* Bottom accent line */}
-        <View style={[styles.accentLine, { backgroundColor: item.color }]} />
+        <View style={[styles.accentLine, { backgroundColor: cardColor }]} />
       </TouchableOpacity>
     );
   };
@@ -111,7 +140,7 @@ export default function CategoriesScreen() {
       {/* ── Header ── */}
       <View style={[styles.header, { backgroundColor: colors.primary }]}>
         <Text style={styles.headerTitle}>
-          {isArabic ? 'الفئات' : 'Categories'}
+          {t('navigation.categories')}
         </Text>
         <Text style={styles.headerSubtitle}>
           {isArabic
@@ -129,7 +158,7 @@ export default function CategoriesScreen() {
             placeholder={isArabic ? 'ابحث عن فئة...' : 'Search categories...'}
             placeholderTextColor={colors.fontSecondary}
             value={search}
-            onChangeText={setSearch}
+            onChangeText={handleSearch}
             textAlign={isArabic ? 'right' : 'left'}
           />
           {search.length > 0 && (
@@ -138,9 +167,6 @@ export default function CategoriesScreen() {
             </TouchableOpacity>
           )}
         </View>
-        <TouchableOpacity style={[styles.filterBtn, { backgroundColor: colors.secondary }]}>
-          <SlidersHorizontal size={18} color="#fff" />
-        </TouchableOpacity>
       </View>
 
       {/* ── Filter tabs ── */}
@@ -171,23 +197,50 @@ export default function CategoriesScreen() {
       </View>
 
       {/* ── Grid ── */}
-      <FlatList
-        data={filtered}
-        keyExtractor={(item) => String(item.id)}
-        numColumns={NUM_COLUMNS}
-        renderItem={renderCategory}
-        contentContainerStyle={styles.grid}
-        columnWrapperStyle={styles.row}
-        showsVerticalScrollIndicator={false}
-        ListEmptyComponent={
-          <View style={styles.empty}>
-            <FontAwesome5 name="search" size={40} color={colors.fontSecondary} />
-            <Text style={[styles.emptyText, { color: colors.fontSecondary }]}>
-              {isArabic ? 'لا توجد نتائج' : 'No results found'}
-            </Text>
-          </View>
-        }
-      />
+      {loading ? (
+        <View style={styles.center}>
+          <ActivityIndicator size="large" color={colors.primary} />
+        </View>
+      ) : error ? (
+        <View style={styles.center}>
+          <FontAwesome5 name="exclamation-circle" size={40} color={colors.fontSecondary} />
+          <Text style={[styles.emptyText, { color: colors.fontSecondary, marginTop: 12 }]}>
+            {error}
+          </Text>
+          <TouchableOpacity
+            style={[styles.retryBtn, { backgroundColor: colors.primary }]}
+            onPress={() => { setLoading(true); fetchCategories(); }}
+          >
+            <Text style={styles.retryBtnText}>{t('common.retry')}</Text>
+          </TouchableOpacity>
+        </View>
+      ) : (
+        <FlatList
+          data={filtered}
+          keyExtractor={(item) => String(item.id)}
+          numColumns={NUM_COLUMNS}
+          renderItem={renderCategory}
+          contentContainerStyle={styles.grid}
+          columnWrapperStyle={styles.row}
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={handleRefresh}
+              colors={[colors.primary]}
+              tintColor={colors.primary}
+            />
+          }
+          ListEmptyComponent={
+            <View style={styles.empty}>
+              <FontAwesome5 name="search" size={40} color={colors.fontSecondary} />
+              <Text style={[styles.emptyText, { color: colors.fontSecondary }]}>
+                {isArabic ? 'لا توجد نتائج' : 'No results found'}
+              </Text>
+            </View>
+          }
+        />
+      )}
     </View>
   );
 }
@@ -195,6 +248,24 @@ export default function CategoriesScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  center: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 32,
+    gap: 12,
+  },
+  retryBtn: {
+    marginTop: 8,
+    paddingHorizontal: 24,
+    paddingVertical: 10,
+    borderRadius: 10,
+  },
+  retryBtnText: {
+    color: '#fff',
+    fontWeight: '600',
+    fontSize: 14,
   },
   header: {
     paddingTop: Platform.OS === 'ios' ? 54 : (StatusBar.currentHeight ?? 0) + 16,

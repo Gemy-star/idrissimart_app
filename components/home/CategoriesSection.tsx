@@ -4,12 +4,12 @@ import { CategorySection } from '@/services/api';
 import { FontAwesome5 } from '@expo/vector-icons';
 import React from 'react';
 import {
-  Image,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View
+    Image,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View
 } from 'react-native';
 
 interface CategoriesSectionProps {
@@ -57,7 +57,7 @@ export const CategoriesSection: React.FC<CategoriesSectionProps> = ({
           >
             {section.categories.map((category) => {
               const name = isArabic ? category.name_ar : category.name;
-              const iconName = category.icon.replace('fa-', '') || 'folder';
+              const iconName = (category.icon.split(' ').pop() || 'folder').replace(/^fa-/, '');
 
               return (
                 <TouchableOpacity

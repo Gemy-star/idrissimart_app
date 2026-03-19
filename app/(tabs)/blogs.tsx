@@ -19,6 +19,13 @@ import {
     View,
 } from 'react-native';
 
+const SORT_TO_ORDERING: Record<SortOption, string> = {
+  newest:      '-published_date',
+  oldest:      'published_date',
+  most_viewed: '-views_count',
+  most_liked:  '-likes_count',
+};
+
 type SortOption = 'newest' | 'oldest' | 'most_viewed' | 'most_liked';
 
 interface FilterState {
@@ -154,15 +161,14 @@ export default function BlogsScreen() {
     try {
       const params: BlogsListParams = {
         page: pageNum,
-        limit: 20,
-        sort_by: currentFilters.sort_by,
+        ordering: SORT_TO_ORDERING[currentFilters.sort_by],
       };
       if (currentFilters.search) params.search = currentFilters.search;
 
       const response = await api.getBlogPosts(params);
 
       if (response.success && response.data) {
-        const newPosts = response.data.results ?? response.data.blogs ?? [];
+        const newPosts = response.data.results ?? [];
         setPosts(prev => (append ? [...prev, ...newPosts] : newPosts));
         const totalPages = response.data.total_pages
           ?? (response.data.count ? Math.ceil(response.data.count / 20) : 1);

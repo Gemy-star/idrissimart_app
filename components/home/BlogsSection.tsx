@@ -4,12 +4,12 @@ import { BlogPost } from '@/services/api';
 import { FontAwesome5 } from '@expo/vector-icons';
 import React from 'react';
 import {
-  Image,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View
+    Image,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View
 } from 'react-native';
 
 interface BlogsSectionProps {
@@ -71,9 +71,11 @@ export const BlogsSection: React.FC<BlogsSectionProps> = ({
             />
 
             <View style={styles.blogContent}>
-              <View style={[styles.categoryBadge, { backgroundColor: blog.category.color || colors.primary }]}>
-                <Text style={styles.categoryBadgeText}>{blog.category.name}</Text>
-              </View>
+              {blog.category && (
+                <View style={[styles.categoryBadge, { backgroundColor: blog.category.color || colors.primary }]}>
+                  <Text style={styles.categoryBadgeText}>{blog.category.name}</Text>
+                </View>
+              )}
 
               <Text 
                 style={[styles.blogTitle, { color: colors.text }]}
