@@ -38,7 +38,7 @@ export const AdsSection: React.FC<AdsSectionProps> = ({
         {onViewAll && (
           <TouchableOpacity onPress={onViewAll}>
             <Text style={[styles.viewAll, { color: colors.primary }]}>
-              {t('view_all') || 'View All'}
+              {t('home.viewAll')}
             </Text>
           </TouchableOpacity>
         )}
@@ -65,14 +65,14 @@ export const AdsSection: React.FC<AdsSectionProps> = ({
               
               {ad.is_urgent && (
                 <View style={[styles.badge, styles.urgentBadge]}>
-                  <Text style={styles.badgeText}>{t('urgent') || 'Urgent'}</Text>
+                  <Text style={styles.badgeText}>{t('home.urgent')}</Text>
                 </View>
               )}
               
               {ad.is_highlighted && (
                 <View style={[styles.badge, styles.featuredBadge]}>
                   <FontAwesome5 name="star" size={10} color="#fff" />
-                  <Text style={styles.badgeText}> {t('featured') || 'Featured'}</Text>
+                  <Text style={styles.badgeText}> {t('home.featured')}</Text>
                 </View>
               )}
 
@@ -116,7 +116,7 @@ export const AdsSection: React.FC<AdsSectionProps> = ({
                 <Text style={[styles.price, { color: colors.secondary }]}>
                   ${parseFloat(ad.price).toFixed(0)}
                   {ad.is_negotiable && (
-                    <Text style={styles.negotiable}> {t('negotiable') || '(negotiable)'}</Text>
+                    <Text style={styles.negotiable}> {t('home.negotiable')}</Text>
                   )}
                 </Text>
                 

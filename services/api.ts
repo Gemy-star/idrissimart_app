@@ -228,6 +228,48 @@ export interface BlogPost {
   is_published: boolean;
 }
 
+export interface BlogsListResponse {
+  blogs?: BlogPost[];
+  results?: BlogPost[];
+  count?: number;
+  total?: number;
+  page?: number;
+  total_pages?: number;
+  next?: string | null;
+  previous?: string | null;
+}
+
+export interface BlogsListParams {
+  search?: string;
+  category?: number;
+  sort_by?: string;
+  page?: number;
+  limit?: number;
+}
+
+export interface AdsListResponse {
+  ads?: Ad[];
+  results?: Ad[];
+  count?: number;
+  total?: number;
+  page?: number;
+  total_pages?: number;
+  next?: string | null;
+  previous?: string | null;
+}
+
+export interface AdsListParams {
+  search?: string;
+  category?: number;
+  min_price?: number;
+  max_price?: number;
+  sort_by?: string;
+  page?: number;
+  limit?: number;
+  country?: string;
+  city?: string;
+}
+
 // ==================== End Home Page API Types ====================
 
 class ApiService {
@@ -301,8 +343,30 @@ class ApiService {
     params.append('featured_ads_limit', featured_ads_limit.toString());
     params.append('blogs_limit', blogs_limit.toString());
 
-    const url = `${this.idrissiMartUrl}/api/home/?${params.toString()}`;
+    const url = `${this.idrissiMartUrl}/home/?${params.toString()}`;
     return this.request<HomePageResponse>(url);
+  }
+
+  // Idrissimart Blogs API
+  async getBlogPosts(params: BlogsListParams = {}) {
+    const query = new URLSearchParams();
+    Object.entries(params).forEach(([k, v]) => {
+      if (v !== undefined && v !== null && v !== '') {
+        query.append(k, String(v));
+      }
+    });
+    return this.request<BlogsListResponse>(`${this.idrissiMartUrl}/blog/posts/?${query.toString()}`);
+  }
+
+  // Idrissimart Ads API
+  async getAds(params: AdsListParams = {}) {
+    const query = new URLSearchParams();
+    Object.entries(params).forEach(([k, v]) => {
+      if (v !== undefined && v !== null && v !== '') {
+        query.append(k, String(v));
+      }
+    });
+    return this.request<AdsListResponse>(`${this.idrissiMartUrl}/ads/?${query.toString()}`);
   }
 }
 

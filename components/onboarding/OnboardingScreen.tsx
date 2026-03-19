@@ -1,15 +1,17 @@
 import { Colors } from '@/constants/Colors';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { useOnboarding } from '@/contexts/OnboardingContext';
 import { useRef, useState } from 'react';
 import {
-    Dimensions,
-    FlatList,
-    Image,
-    Platform,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Dimensions,
+  FlatList,
+  I18nManager,
+  Image,
+  Platform,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 
 const { width, height } = Dimensions.get('window');
@@ -22,48 +24,50 @@ interface OnboardingSlide {
   color: string;
 }
 
-const SLIDES: OnboardingSlide[] = [
-  {
-    id: '1',
-    title: 'Welcome to Idrissimart',
-    description: 'Your trusted marketplace for buying and selling with confidence. Discover thousands of listings in your area.',
-    icon: '🏪',
-    color: Colors.light.primary,
-  },
-  {
-    id: '2',
-    title: 'Buy & Sell Easily',
-    description: 'Post your ads in minutes. Browse through categories, filter by price, location, and find exactly what you need.',
-    icon: '🛍️',
-    color: Colors.light.secondary,
-  },
-  {
-    id: '3',
-    title: 'Chat Directly',
-    description: 'Connect with buyers and sellers through our built-in messaging system. Negotiate prices and arrange meetings safely.',
-    icon: '💬',
-    color: '#6b4c7a',
-  },
-  {
-    id: '4',
-    title: 'Stay Informed',
-    description: 'Get real-time notifications about your ads, messages, and favorite items. Never miss an opportunity!',
-    icon: '🔔',
-    color: '#ff8534',
-  },
-  {
-    id: '5',
-    title: 'Safe & Secure',
-    description: 'All users are verified. Read reviews, check ratings, and trade with confidence in our secure marketplace.',
-    icon: '🔒',
-    color: Colors.light.primary,
-  },
-];
-
 export default function OnboardingScreen() {
   const { completeOnboarding } = useOnboarding();
+  const { t, language } = useLanguage();
   const [currentIndex, setCurrentIndex] = useState(0);
   const flatListRef = useRef<FlatList>(null);
+  const isRTL = language === 'ar' || I18nManager.isRTL;
+
+  const SLIDES: OnboardingSlide[] = [
+    {
+      id: '1',
+      title: t('onboarding.slides.1.title'),
+      description: t('onboarding.slides.1.description'),
+      icon: '🏪',
+      color: Colors.light.primary,
+    },
+    {
+      id: '2',
+      title: t('onboarding.slides.2.title'),
+      description: t('onboarding.slides.2.description'),
+      icon: '🛍️',
+      color: Colors.light.secondary,
+    },
+    {
+      id: '3',
+      title: t('onboarding.slides.3.title'),
+      description: t('onboarding.slides.3.description'),
+      icon: '💬',
+      color: '#6b4c7a',
+    },
+    {
+      id: '4',
+      title: t('onboarding.slides.4.title'),
+      description: t('onboarding.slides.4.description'),
+      icon: '🔔',
+      color: '#ff8534',
+    },
+    {
+      id: '5',
+      title: t('onboarding.slides.5.title'),
+      description: t('onboarding.slides.5.description'),
+      icon: '🔒',
+      color: Colors.light.primary,
+    },
+  ];
 
   const handleNext = () => {
     if (currentIndex < SLIDES.length - 1) {
@@ -112,8 +116,8 @@ export default function OnboardingScreen() {
       <View style={[styles.iconContainer, { backgroundColor: item.color + '15' }]}>
         <Text style={styles.icon}>{item.icon}</Text>
       </View>
-      <Text style={styles.title}>{item.title}</Text>
-      <Text style={styles.description}>{item.description}</Text>
+      <Text style={[styles.title, isRTL && styles.rtlText]}>{item.title}</Text>
+      <Text style={[styles.description, isRTL && styles.rtlText]}>{item.description}</Text>
     </View>
   );
 
@@ -131,7 +135,7 @@ export default function OnboardingScreen() {
       {/* Skip Button */}
       {currentIndex < SLIDES.length - 1 && (
         <TouchableOpacity style={styles.skipButton} onPress={handleSkip}>
-          <Text style={styles.skipText}>Skip</Text>
+          <Text style={styles.skipText}>{t('onboarding.skip')}</Text>
         </TouchableOpacity>
       )}
 
@@ -155,7 +159,7 @@ export default function OnboardingScreen() {
       {/* Next/Get Started Button */}
       <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
         <Text style={styles.nextButtonText}>
-          {currentIndex === SLIDES.length - 1 ? 'Get Started' : 'Next'}
+          {currentIndex === SLIDES.length - 1 ? t('onboarding.getStarted') : t('onboarding.next')}
         </Text>
       </TouchableOpacity>
     </View>
@@ -251,5 +255,9 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 18,
     fontWeight: '600',
+  },
+  rtlText: {
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
 });

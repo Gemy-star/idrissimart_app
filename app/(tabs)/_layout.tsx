@@ -1,14 +1,14 @@
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTheme } from '@/contexts/ThemeContext';
-import { useTypography } from '@/hooks/useTypography';
+
 import { Tabs } from 'expo-router';
-import { Bell, Cloud, Home, MessageSquare, Newspaper, User } from 'lucide-react-native';
+import { Bell, BookOpen, Cloud, Grid2x2, Home, MessageSquare, Newspaper, Tag, User } from 'lucide-react-native';
 import React from 'react';
 
 export default function TabLayout() {
   const { colors } = useTheme();
   const { t } = useLanguage();
-  const { getTextStyle } = useTypography();
+
 
   const defaultColors = {
     tabBarBackground: '#FFFFFF',
@@ -30,6 +30,12 @@ export default function TabLayout() {
           case 'index':
             IconComponent = Home;
             break;
+          case 'ads':
+            IconComponent = Tag;
+            break;
+          case 'blogs':
+            IconComponent = BookOpen;
+            break;
           case 'news':
             IconComponent = Newspaper;
             break;
@@ -39,6 +45,9 @@ export default function TabLayout() {
           case 'messages':
               IconComponent = MessageSquare;
               break;
+          case 'categories':
+            IconComponent = Grid2x2;
+            break;
           case 'profile':
             IconComponent = User;
             break;
@@ -62,10 +71,9 @@ export default function TabLayout() {
           tabBarLabel: t(`navigation.${route.name}`) || route.name,
           tabBarLabelStyle: {
             fontSize: 12,
-            fontWeight: '600',
+            fontWeight: '600' as const,
             fontFamily: 'IBM Plex Sans Arabic',
             marginTop: 4,
-            ...(getTextStyle?.('xs', 'semibold') || {}),
           },
           tabBarIcon: ({ color, size }) => <IconComponent color={color} size={size} />,
         };

@@ -35,7 +35,7 @@ export default function HomeScreen() {
       <View style={[styles.centerContainer, { backgroundColor: colors.background }]}>
         <ActivityIndicator size="large" color={colors.primary} />
         <Text style={[styles.loadingText, { color: colors.text }]}>
-          {t('loading') || 'Loading...'}
+          {t('common.loading')}
         </Text>
       </View>
     );
@@ -51,7 +51,7 @@ export default function HomeScreen() {
           style={[styles.retryText, { color: colors.primary }]}
           onPress={refetch}
         >
-          {t('retry') || 'Tap to retry'}
+          {t('common.retry')}
         </Text>
       </View>
     );

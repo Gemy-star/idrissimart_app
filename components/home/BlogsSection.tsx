@@ -41,12 +41,12 @@ export const BlogsSection: React.FC<BlogsSectionProps> = ({
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={[styles.title, { color: colors.text }]}>
-          {t('latest_blogs') || 'Latest from Blog'}
+          {t('home.latestFromBlog')}
         </Text>
         {onViewAll && (
           <TouchableOpacity onPress={onViewAll}>
             <Text style={[styles.viewAll, { color: colors.primary }]}>
-              {t('view_all') || 'View All'}
+              {t('home.viewAll')}
             </Text>
           </TouchableOpacity>
         )}

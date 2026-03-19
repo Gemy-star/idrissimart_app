@@ -28,7 +28,7 @@
     "subtitle": "Global Ranking Conference 2025"
   },
   "welcomeCard": {
-    "title": "Welcome to the Global Classification Forum in Saudi Arabia",
+    "title": "Welcome to the Global Classification Forum in Egypt",
     "subtitle": "We are pleased to have you participate in the Global Classification Forum. Browse your event schedule, venue locations, and featured speakers."
   },
   "sidebar": {
@@ -43,12 +43,39 @@
   },
   "navigation": {
     "index": "Home",
+    "ads": "Ads",
+    "blogs": "Blogs",
     "news": "News",
     "weather": "Weather",
+    "categories": "Categories",
     "profile": "Profile",
     "notifications": "Notifications",
     "notification": "Notification",
     "messages": "Messages"
+  },
+  "auth": {
+    "login": "Sign In",
+    "register": "Create Account",
+    "username": "Username",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "phone": "Phone (optional)",
+    "forgotPassword": "Forgot password?",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?",
+    "signIn": "Sign In",
+    "signUp": "Sign Up",
+    "individual": "Individual",
+    "commercial": "Commercial",
+    "accountType": "Account Type",
+    "welcomeBack": "Welcome back",
+    "joinToday": "Join Idrissimart today",
+    "loginSuccess": "Signed in successfully",
+    "registerSuccess": "Account created. Please sign in.",
+    "registerSuccessTitle": "Registered"
   },
   "home": {
     "title": "Global Resource Finder",
@@ -63,7 +90,19 @@
     "information": "Information",
     "layers": "Layers",
     "circles": "Circles",
-    "quotient": "Quotient"
+    "quotient": "Quotient",
+    "viewAll": "View All",
+    "urgent": "Urgent",
+    "featured": "Featured",
+    "negotiable": "Negotiable",
+    "ads": "ads",
+    "categories": "Categories",
+    "latestFromBlog": "Latest from Blog"
+  },
+  "notFound": {
+    "title": "Oops!",
+    "text": "This screen doesn't exist.",
+    "goHome": "Go to home screen!"
   },
   "news": {
     "title": "Latest News",
@@ -87,11 +126,11 @@
   "profile": {
     "title": "Profile",
     "aboutMe": "About Me",
-    "aboutMeText": "An expert in technology and digital transformation. I have worked with leading companies in developing technical solutions for the public and global forum in Saudi Arabia.",
+    "aboutMeText": "An expert in technology and digital transformation. I have worked with leading companies in developing technical solutions for the public and global forum in Egypt.",
     "type": "Type",
     "tech": "Tech",
     "area": "Area",
-    "aboutTextTwo": "From Saudi Arabia to European destinations to finance education using technology.",
+    "aboutTextTwo": "From Egypt to European destinations to finance education using technology.",
     "position": "Position",
     "mainSpeaker": "Main Speaker",
     "field": "Field",
@@ -103,7 +142,7 @@
     "role": "Role",
     "roleValue": "Technical Member (CTO)",
     "nationality": "Nationality",
-    "nationalityValue": "Kingdom of Saudi Arabia",
+    "nationalityValue": "Egypt",
     "from": "From",
     "fromValue": "From 2018",
     "personalSocials": "Personal Socials",
@@ -119,11 +158,113 @@
     "appSettings": "App Settings",
     "about": "About",
     "aboutText": "GRF (Global Resource Finder) helps you stay connected with the latest news, weather updates, and global information. Version 1.0.0",
-    "signOut": "Sign Out"
+    "signOut": "Sign Out",
+    "myAccount": "My Account",
+    "myAds": "My Ads",
+    "manageListings": "Manage your listings",
+    "wishlist": "Wishlist",
+    "savedItems": "Saved items",
+    "editProfile": "Edit Profile",
+    "app": "App",
+    "settings": "Settings",
+    "settingsSublabel": "Language, appearance & notifications",
+    "help": "Help & Support",
+    "signOutConfirm": "Are you sure you want to sign out?",
+    "rank": "Rank",
+    "individual": "Individual",
+    "commercial": "Commercial",
+    "premium": "Premium",
+    "active": "Active",
+    "rating": "Rating",
+    "guestTitle": "Sign in to continue",
+    "guestSubtitle": "Get the full experience and unlock all features"
+  },
+  "settings": {
+    "title": "Settings",
+    "subtitle": "Customize your experience",
+    "language": "Language",
+    "languageDesc": "Choose your preferred language. The app supports Arabic and English with full RTL support.",
+    "rtlWarning": "Changing text direction may require an app restart.",
+    "appearance": "Appearance",
+    "appearanceDesc": "Switch between light and dark mode.",
+    "light": "Light",
+    "dark": "Dark",
+    "notifications": "Notifications",
+    "enableNotifications": "Enable Notifications",
+    "enableNotificationsDesc": "Allow all notifications",
+    "adNotifications": "Ad Notifications",
+    "adNotificationsDesc": "New listing alerts",
+    "messageNotifications": "Message Notifications",
+    "messageNotificationsDesc": "New message alerts",
+    "about": "About",
+    "version": "Version",
+    "privacyPolicy": "Privacy Policy",
+    "termsOfService": "Terms of Service",
+    "contactUs": "Contact Us",
+    "footer": "All rights reserved"
+  },
+  "onboarding": {
+    "skip": "Skip",
+    "next": "Next",
+    "getStarted": "Get Started",
+    "slides": {
+      "1": {
+        "title": "Welcome to Idrissimart",
+        "description": "Your trusted marketplace for buying and selling with confidence. Discover thousands of listings in your area."
+      },
+      "2": {
+        "title": "Buy & Sell Easily",
+        "description": "Post your ads in minutes. Browse through categories, filter by price, location, and find exactly what you need."
+      },
+      "3": {
+        "title": "Chat Directly",
+        "description": "Connect with buyers and sellers through our built-in messaging system. Negotiate prices and arrange meetings safely."
+      },
+      "4": {
+        "title": "Stay Informed",
+        "description": "Get real-time notifications about your ads, messages, and favorite items. Never miss an opportunity!"
+      },
+      "5": {
+        "title": "Safe & Secure",
+        "description": "All users are verified. Read reviews, check ratings, and trade with confidence in our secure marketplace."
+      }
+    }
   },
   "languages": {
     "english": "English",
     "arabic": "العربية"
+  },
+  "ads": {
+    "title": "Ads",
+    "search": "Search ads...",
+    "filters": "Filters",
+    "sortBy": "Sort By",
+    "priceRange": "Price Range",
+    "minPrice": "Min Price",
+    "maxPrice": "Max Price",
+    "newest": "Newest",
+    "oldest": "Oldest",
+    "priceAsc": "Price: Low to High",
+    "priceDesc": "Price: High to Low",
+    "applyFilters": "Apply Filters",
+    "reset": "Reset",
+    "noAds": "No ads found"
+  },
+  "blogs": {
+    "title": "Blogs",
+    "search": "Search blogs...",
+    "filters": "Filters",
+    "sortBy": "Sort By",
+    "newest": "Newest",
+    "oldest": "Oldest",
+    "mostViewed": "Most Viewed",
+    "mostLiked": "Most Liked",
+    "applyFilters": "Apply Filters",
+    "reset": "Reset",
+    "noBlogs": "No blogs found",
+    "by": "By",
+    "views": "views",
+    "likes": "likes"
   },
   "errors": {
     "networkError": "Network connection error",

@@ -35,7 +35,7 @@ export const WhyChooseSection: React.FC<WhyChooseSectionProps> = ({ data }) => {
           .map((feature) => {
             const featureTitle = isArabic ? feature.title_ar : feature.title;
             const featureDescription = isArabic ? feature.description_ar : feature.description;
-            const iconName = feature.icon.split(' ').pop() || 'check-circle';
+            const iconName = (feature.icon.split(' ').pop() || 'check-circle').replace(/^fa-/, '');
 
             return (
               <View 

@@ -34,11 +34,11 @@ export const CategoriesSection: React.FC<CategoriesSectionProps> = ({
       {showTitle && (
         <View style={styles.header}>
           <Text style={[styles.sectionTitle, { color: colors.text }]}>
-            {t('categories') || 'Categories'}
+            {t('home.categories')}
           </Text>
           <TouchableOpacity>
             <Text style={[styles.viewAll, { color: colors.primary }]}>
-              {t('view_all') || 'View All'}
+              {t('home.viewAll')}
             </Text>
           </TouchableOpacity>
         </View>
@@ -90,7 +90,7 @@ export const CategoriesSection: React.FC<CategoriesSectionProps> = ({
                   
                   {category.ads_count !== undefined && (
                     <Text style={[styles.adsCount, { color: colors.fontSecondary }]}>
-                      {category.ads_count} {t('ads') || 'ads'}
+                      {category.ads_count} {t('home.ads')}
                     </Text>
                   )}
                 </TouchableOpacity>

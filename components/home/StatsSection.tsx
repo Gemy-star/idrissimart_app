@@ -22,7 +22,7 @@ const StatItem: React.FC<StatItemProps> = ({ value, title, subtitle, icon }) => 
   const { colors } = useTheme();
 
   // Parse FontAwesome icon name from "fas fa-user-friends"
-  const iconName = icon.split(' ').pop() || 'chart-line';
+  const iconName = (icon.split(' ').pop() || 'chart-line').replace(/^fa-/, '');
 
   return (
     <View style={[styles.statItem, { backgroundColor: colors.surface }]}>
