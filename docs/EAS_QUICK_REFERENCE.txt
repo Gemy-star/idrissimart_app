@@ -1,0 +1,163 @@
+╔══════════════════════════════════════════════════════════════════════╗
+║                    🚀 EAS BUILD QUICK REFERENCE                      ║
+║              Expo Application Services Commands                      ║
+╚══════════════════════════════════════════════════════════════════════╝
+
+┌──────────────────────────────────────────────────────────────────────┐
+│ 🔧 INITIAL SETUP (One-time)                                          │
+├──────────────────────────────────────────────────────────────────────┤
+│ npm install -g eas-cli        → Install EAS CLI globally             │
+│ eas login                     → Login to Expo account                │
+│ eas init                      → Initialize EAS in project            │
+│ eas build:configure           → Configure build profiles             │
+└──────────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────────┐
+│ 🏗️  BUILD COMMANDS                                                   │
+├──────────────────────────────────────────────────────────────────────┤
+│ Development (Internal testing with dev tools)                        │
+│   npm run build:android:dev   → Android APK (development)            │
+│   npm run build:ios:dev       → iOS Simulator build                  │
+│                                                                       │
+│ Preview (QA testing, stakeholders)                                   │
+│   npm run build:android:preview → Android APK (preview)              │
+│   npm run build:ios:preview   → iOS IPA (preview)                    │
+│   npm run build:all:preview   → Both platforms (preview)             │
+│                                                                       │
+│ Production (Store-ready)                                             │
+│   npm run build:android       → Android APK (production)             │
+│   npm run build:ios           → iOS IPA (production)                 │
+│   npm run build:all           → Both platforms (production)          │
+│                                                                       │
+│ Android App Bundle (Required for Google Play)                        │
+│   eas build -p android --profile production-aab                      │
+└──────────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────────┐
+│ 📦 SUBMISSION TO STORES                                              │
+├──────────────────────────────────────────────────────────────────────┤
+│ npm run submit:android        → Submit to Google Play Store          │
+│ npm run submit:ios            → Submit to Apple App Store            │
+│                                                                       │
+│ Prerequisites:                                                       │
+│ Android: google-service-account.json (from Play Console)             │
+│ iOS: Apple Developer account + App Store Connect API key             │
+└──────────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────────┐
+│ 🔄 OTA UPDATES (JavaScript-only changes)                             │
+├──────────────────────────────────────────────────────────────────────┤
+│ eas update --branch development --message "Fix"                      │
+│ eas update --branch preview --message "Feature"                      │
+│ eas update --branch production --message "v1.0.1"                    │
+│                                                                       │
+│ ℹ️  Users get updates automatically on app restart                   │
+└──────────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────────┐
+│ 📊 BUILD STATUS & MANAGEMENT                                         │
+├──────────────────────────────────────────────────────────────────────┤
+│ eas build:list                → List all builds                      │
+│ eas build:view                → View latest build details            │
+│ eas build:view [BUILD_ID]    → View specific build                   │
+│ eas build:cancel              → Cancel running build                 │
+└──────────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────────┐
+│ 🔐 CREDENTIALS MANAGEMENT                                            │
+├──────────────────────────────────────────────────────────────────────┤
+│ eas credentials                → View all credentials                │
+│ eas credentials -p android    → Manage Android keystore              │
+│ eas credentials -p ios        → Manage iOS certificates              │
+└──────────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────────┐
+│ 📱 BUILD PROFILES (in eas.json)                                      │
+├──────────────────────────────────────────────────────────────────────┤
+│ Profile         │ Purpose              │ Distribution                │
+│ ────────────────┼──────────────────────┼─────────────────────────── │
+│ development     │ Testing on devices   │ Internal                    │
+│ preview         │ QA & stakeholders    │ Internal (APK/IPA)          │
+│ production      │ Store release        │ App Store / Play Store      │
+│ production-aab  │ Play Store (AAB)     │ Google Play Store           │
+└──────────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────────┐
+│ 🎯 BUNDLE IDENTIFIERS                                                │
+├──────────────────────────────────────────────────────────────────────┤
+│ Android Package:        com.idrissimart.app                          │
+│ iOS Bundle ID:          com.idrissimart.app                          │
+│                                                                       │
+│ Development:                                                         │
+│   iOS:   com.idrissimart.app.dev                                     │
+│                                                                       │
+│ Preview:                                                             │
+│   iOS:   com.idrissimart.app.preview                                 │
+└──────────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────────┐
+│ 📝 BEFORE FIRST BUILD                                                │
+├──────────────────────────────────────────────────────────────────────┤
+│ 1. Update app.json:                                                  │
+│    - Set "owner" to your Expo username                               │
+│    - Run "eas init" to get project ID                                │
+│                                                                       │
+│ 2. For Android:                                                      │
+│    - EAS will generate keystore (say yes)                            │
+│                                                                       │
+│ 3. For iOS:                                                          │
+│    - Have Apple Developer account ready                              │
+│    - EAS will guide you through cert setup                           │
+└──────────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────────┐
+│ 🐛 TROUBLESHOOTING                                                   │
+├──────────────────────────────────────────────────────────────────────┤
+│ Build failed?          → eas build:view (check logs)                 │
+│ Credentials issue?     → eas credentials (reset if needed)           │
+│ Missing dependencies?  → npm install && npm prune                    │
+│ Version conflict?      → Check package.json                          │
+└──────────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────────┐
+│ 💡 DEVELOPMENT WORKFLOW                                              │
+├──────────────────────────────────────────────────────────────────────┤
+│ 1. Development phase:                                                │
+│    - Use emulators: npm run android / npm run ios                    │
+│    - Quick iterations without builds                                 │
+│                                                                       │
+│ 2. QA/Testing phase:                                                 │
+│    - Build preview: npm run build:all:preview                        │
+│    - Share with testers (APK/TestFlight)                             │
+│                                                                       │
+│ 3. Production release:                                               │
+│    - Build production: npm run build:all                             │
+│    - Submit: npm run submit:android & npm run submit:ios             │
+│                                                                       │
+│ 4. Hotfix/Updates:                                                   │
+│    - JS-only: eas update --branch production                         │
+│    - Native change: Full build required                              │
+└──────────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────────┐
+│ 💰 PRICING (as of 2026)                                              │
+├──────────────────────────────────────────────────────────────────────┤
+│ Free Tier:     Limited builds per month                              │
+│ Production:    Unlimited builds ($29+/month)                         │
+│ Priority:      Faster builds, more concurrent ($99+/month)           │
+│                                                                       │
+│ Check current pricing: https://expo.dev/pricing                      │
+└──────────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────────┐
+│ 📚 DOCUMENTATION                                                      │
+├──────────────────────────────────────────────────────────────────────┤
+│ EAS_BUILD_GUIDE.md           → Complete guide (this project)         │
+│ https://docs.expo.dev/build  → Official EAS Build docs               │
+│ https://docs.expo.dev/submit → Store submission guide                │
+└──────────────────────────────────────────────────────────────────────┘
+
+╔══════════════════════════════════════════════════════════════════════╗
+║  💡 TIP: First build takes 15-30 min. Subsequent builds are faster! ║
+║      Use EAS Update for instant JS-only updates without rebuilding  ║
+╚══════════════════════════════════════════════════════════════════════╝

@@ -4,8 +4,14 @@ import authReducer from './slices/authSlice';
 import blogReducer from './slices/blogSlice';
 import categoriesReducer from './slices/categoriesSlice';
 import chatReducer from './slices/chatSlice';
+import contactReducer from './slices/contactSlice';
 import countriesReducer from './slices/countriesSlice';
+import customFieldsReducer from './slices/customFieldsSlice';
+import faqReducer from './slices/faqSlice';
+import homeReducer from './slices/homeSlice';
 import notificationsReducer from './slices/notificationsSlice';
+import packagesReducer from './slices/packagesSlice';
+import siteReducer from './slices/siteSlice';
 import wishlistReducer from './slices/wishlistSlice';
 
 export const store = configureStore({
@@ -15,6 +21,12 @@ export const store = configureStore({
     categories: categoriesReducer,
     countries: countriesReducer,
     chat: chatReducer,
+    contact: contactReducer,
+    customFields: customFieldsReducer,
+    faq: faqReducer,
+    home: homeReducer,
+    packages: packagesReducer,
+    site: siteReducer,
     wishlist: wishlistReducer,
     notifications: notificationsReducer,
     blog: blogReducer,

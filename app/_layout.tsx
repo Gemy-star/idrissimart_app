@@ -1,68 +1,55 @@
-import Header from '@/components/header';
-import Sidebar from '@/components/sidebar';
+import OnboardingWrapper from '@/components/onboarding/OnboardingWrapper';
+import SplashScreen from '@/components/SplashScreen';
 import { LanguageProvider } from '@/contexts/LanguageContext';
 import { LoadingProvider } from '@/contexts/LoadingContext';
-import { SidebarProvider, useSidebar } from '@/contexts/SidebarContext';
+import { OnboardingProvider } from '@/contexts/OnboardingContext';
+import { SidebarProvider } from '@/contexts/SidebarContext';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { store } from '@/store';
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
-import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { useState } from 'react';
+import { StyleSheet, View } from 'react-native';
 import { Provider } from 'react-redux';
 
-const LayoutContent = () => {
-  const { isVisible } = useSidebar();
-
-  return (
-    <View style={styles.contentArea}>
-      <Header />
-      {isVisible ? <Sidebar /> : <Stack screenOptions={{ headerShown: false }} />}
-    </View>
-  );
-};
-
 export default function RootLayout() {
+  const [splashDone, setSplashDone] = useState(false);
   const [fontsLoaded] = useFonts({
     'IBM Plex Sans Arabic': require('../assets/fonts/IBMPlexSansArabic-Regular.ttf'),
     'IBM Plex Sans Arabic Bold': require('../assets/fonts/IBMPlexSansArabic-Bold.ttf'),
   });
 
-  if (!fontsLoaded) {
-    return (
-      <View style={styles.loaderContainer}>
-        <ActivityIndicator size="large" color="#007AFF" />
-      </View>
-    );
-  }
-
   return (
     <Provider store={store}>
       <ThemeProvider>
         <LanguageProvider>
-          <SidebarProvider>
-            <LoadingProvider>
-              <View style={styles.appContainer}>
-                <LayoutContent />
-              </View>
-            </LoadingProvider>
-          </SidebarProvider>
+          <OnboardingProvider>
+            <SidebarProvider>
+              <LoadingProvider>
+                <OnboardingWrapper>
+                  <View style={styles.appContainer}>
+                    {splashDone && <Stack screenOptions={{ headerShown: false }} />}
+                  </View>
+                </OnboardingWrapper>
+              </LoadingProvider>
+            </SidebarProvider>
+          </OnboardingProvider>
         </LanguageProvider>
       </ThemeProvider>
+
+      {!splashDone && (
+        <SplashScreen
+          appReady={fontsLoaded}
+          onFinish={() => setSplashDone(true)}
+        />
+      )}
     </Provider>
   );
 }
 
 const styles = StyleSheet.create({
-  loaderContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
   appContainer: {
     flex: 1,
     flexDirection: 'column',
-  },
-  contentArea: {
-    flex: 1,
   },
 });

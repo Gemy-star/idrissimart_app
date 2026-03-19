@@ -1,0 +1,95 @@
+╔══════════════════════════════════════════════════════════════════════╗
+║                    🚀 QUICK START GUIDE                              ║
+║              Running on iOS & Android Emulators                      ║
+╚══════════════════════════════════════════════════════════════════════╝
+
+┌──────────────────────────────────────────────────────────────────────┐
+│ iOS SIMULATOR (macOS only)                                           │
+├──────────────────────────────────────────────────────────────────────┤
+│ 1️⃣  npm run emulator:ios      # Start iOS simulator                 │
+│ 2️⃣  npm run ios                # Run app on iOS                      │
+│                                                                       │
+│ Or use the script directly:                                          │
+│ ./start_ios_simulator.sh                                             │
+└──────────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────────┐
+│ ANDROID EMULATOR                                                      │
+├──────────────────────────────────────────────────────────────────────┤
+│ 1️⃣  npm run emulator:android  # Start Android emulator               │
+│ 2️⃣  npm run android            # Run app on Android                  │
+│                                                                       │
+│ Or use the script directly:                                          │
+│ ./start_android_emulator.sh                                          │
+└──────────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────────┐
+│ 🌐 API CONFIGURATION (Automatic)                                     │
+├──────────────────────────────────────────────────────────────────────┤
+│ iOS Simulator:      http://localhost:5454/api                        │
+│ Android Emulator:   http://10.0.2.2:5454/api                         │
+│ Production:         https://idrissimart.com/api                      │
+│                                                                       │
+│ ℹ️  Platform detection is automatic! See config/api.config.ts        │
+└──────────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────────┐
+│ 📱 ALL AVAILABLE COMMANDS                                            │
+├──────────────────────────────────────────────────────────────────────┤
+│ npm start              → Start Expo (choose platform interactively)  │
+│ npm run android        → Run on Android emulator/device              │
+│ npm run ios            → Run on iOS simulator/device                 │
+│ npm run web            → Run in web browser                          │
+└──────────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────────┐
+│ ⚙️  PREREQUISITES                                                     │
+├──────────────────────────────────────────────────────────────────────┤
+│ iOS:     ✓ Xcode installed                                           │
+│          ✓ Command Line Tools installed                              │
+│                                                                       │
+│ Android: ✓ Android Studio installed                                  │
+│          ✓ ANDROID_HOME environment variable set                     │
+│          ✓ At least one AVD (Virtual Device) created                 │
+└──────────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────────┐
+│ 🏗️  RECOMMENDED DEVELOPMENT WORKFLOW                                 │
+├──────────────────────────────────────────────────────────────────────┤
+│ Terminal 1:  python manage.py runserver 0.0.0.0:5454                 │
+│ Terminal 2:  npm run emulator:android  (or emulator:ios)             │
+│ Terminal 3:  npm start  (then press 'a' or 'i')                      │
+└──────────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────────┐
+│ 🐛 QUICK TROUBLESHOOTING                                             │
+├──────────────────────────────────────────────────────────────────────┤
+│ • Metro bundler stuck?     → expo start -c                           │
+│ • Module not found?        → rm -rf node_modules && npm install      │
+│ • Android not connecting?  → Check server runs on 0.0.0.0:5454       │
+│ • iOS not starting?        → xcode-select --install                  │
+│ • Clear everything?        → npm start -- --reset-cache              │
+└──────────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────────┐
+│ 📚 DOCUMENTATION                                                      │
+├──────────────────────────────────────────────────────────────────────┤
+│ EMULATOR_SETUP.md        → Complete setup & troubleshooting guide    │
+│ REDUX_API_GUIDE.md       → Redux & API integration guide             │
+│ API_ENVIRONMENT.md       → API configuration details                 │
+│ ONBOARDING_GUIDE.md      → Onboarding screen implementation          │
+└──────────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────────┐
+│ 🛠️  USEFUL DEBUGGING COMMANDS                                        │
+├──────────────────────────────────────────────────────────────────────┤
+│ xcrun simctl list devices              → List iOS simulators         │
+│ emulator -list-avds                    → List Android AVDs           │
+│ adb devices                            → List connected devices      │
+│ ifconfig | grep "inet "                → Get your local IP           │
+└──────────────────────────────────────────────────────────────────────┘
+
+╔══════════════════════════════════════════════════════════════════════╗
+║  💡 TIP: Open Expo dev menu by shaking device or pressing:          ║
+║      iOS: Cmd+D  |  Android: Cmd+M (Mac) or Ctrl+M (Win/Linux)      ║
+╚══════════════════════════════════════════════════════════════════════╝

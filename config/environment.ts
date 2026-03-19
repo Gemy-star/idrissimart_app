@@ -1,4 +1,3 @@
-// Environment Configuration for Idrissimart App
 import { Platform } from 'react-native';
 
 /**

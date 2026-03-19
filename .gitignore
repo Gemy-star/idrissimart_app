@@ -32,5 +32,14 @@ yarn-error.*
 .env*.local
 .env
 
+# EAS credentials and sensitive files
+google-service-account.json
+*.keystore
+*.jks
+apple-*.json
+AuthKey_*.p8
+dist-creds.json
+credentials.json
+
 # typescript
 *.tsbuildinfo
