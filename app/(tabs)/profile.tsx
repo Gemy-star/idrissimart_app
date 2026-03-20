@@ -4,30 +4,31 @@ import { AppDispatch, RootState } from '@/store';
 import { logout } from '@/store/slices/authSlice';
 import { router } from 'expo-router';
 import {
-  Bell,
-  ChevronLeft,
-  ChevronRight,
-  ClipboardList,
-  Heart,
-  HelpCircle,
-  LogIn,
-  LogOut,
-  Settings,
-  ShieldCheck,
-  Star,
-  UserCircle,
-  UserPlus,
+    Bell,
+    ChevronLeft,
+    ChevronRight,
+    ClipboardList,
+    Heart,
+    HelpCircle,
+    LogIn,
+    LogOut,
+    MessageCircle,
+    Settings,
+    ShieldCheck,
+    Star,
+    UserCircle,
+    UserPlus,
 } from 'lucide-react-native';
 import React from 'react';
 import {
-  Alert,
-  Platform,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    Alert,
+    Platform,
+    ScrollView,
+    StatusBar,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -225,7 +226,7 @@ export default function ProfileScreen() {
             colors={colors}
           />
           <StatCard
-            value={user.average_rating ? user.average_rating.toFixed(1) : '—'}
+            value={user.average_rating ? parseFloat(String(user.average_rating)).toFixed(1) : '—'}
             label={t('profile.rating')}
             color={colors.warning}
             colors={colors}
@@ -282,6 +283,14 @@ export default function ProfileScreen() {
             label={t('profile.wishlist')}
             sublabel={t('profile.savedItems')}
             onPress={() => {}}
+            isArabic={isArabic}
+            colors={colors}
+          />
+          <MenuRow
+            icon={<MessageCircle size={18} color={colors.primary} />}
+            label={t('profile.messages')}
+            sublabel={t('profile.messagesSublabel')}
+            onPress={() => router.push('/(tabs)/chat')}
             isArabic={isArabic}
             colors={colors}
           />

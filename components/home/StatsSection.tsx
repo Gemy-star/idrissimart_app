@@ -1,7 +1,8 @@
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { HomePage } from '@/services/api';
-import { FontAwesome5 } from '@expo/vector-icons';
+import { faToIonicon } from '@/utils/iconMap';
+import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { Dimensions, StyleSheet, Text, View } from 'react-native';
 
@@ -21,13 +22,10 @@ interface StatItemProps {
 const StatItem: React.FC<StatItemProps> = ({ value, title, subtitle, icon }) => {
   const { colors } = useTheme();
 
-  // Parse FontAwesome icon name from "fas fa-user-friends"
-  const iconName = (icon.split(' ').pop() || 'chart-line').replace(/^fa-/, '');
-
   return (
     <View style={[styles.statItem, { backgroundColor: colors.surface }]}>
       <View style={[styles.iconContainer, { backgroundColor: colors.primary + '20' }]}>
-        <FontAwesome5 name={iconName as any} size={24} color={colors.primary} />
+        <Ionicons name={faToIonicon(icon)} size={24} color={colors.primary} />
       </View>
       <Text style={[styles.statValue, { color: colors.text }]}>{value}+</Text>
       <Text style={[styles.statTitle, { color: colors.text }]}>{title}</Text>

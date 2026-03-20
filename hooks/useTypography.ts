@@ -11,6 +11,7 @@ export const useTypography = () => {
     letterSpacing?: keyof typeof Typography.letterSpacing,
   ) => {
     const isArabic = language === 'ar';
+    const isBold = weight === 'bold' || weight === 'semibold' || weight === 'extrabold' || weight === 'black';
 
     return {
       fontSize: size ? Typography.fontSize[size] : Typography.fontSize.base,
@@ -23,7 +24,9 @@ export const useTypography = () => {
       letterSpacing: letterSpacing
         ? Typography.letterSpacing[letterSpacing]
         : Typography.letterSpacing.normal,
-      fontFamily: isArabic ? FontFamily.arabic : FontFamily.system,
+      fontFamily: isArabic
+        ? (isBold ? FontFamily.arabicBold : FontFamily.arabic)
+        : FontFamily.system,
       // RTL support for Arabic
       textAlign: isArabic ? 'right' : 'left',
       writingDirection: isArabic ? 'rtl' : 'ltr',
@@ -39,38 +42,43 @@ export const useTypography = () => {
       writingDirection: isArabic ? 'rtl' : 'ltr',
     };
 
+    const boldStyle = {
+      ...baseStyle,
+      fontFamily: isArabic ? FontFamily.arabicBold : FontFamily.system,
+    };
+
     switch (variant) {
       case 'h1':
         return {
-          ...baseStyle,
+          ...boldStyle,
           fontSize: Typography.fontSize['4xl'],
           fontWeight: Typography.fontWeight.bold,
           lineHeight: Typography.lineHeight['4xl'],
         };
       case 'h2':
         return {
-          ...baseStyle,
+          ...boldStyle,
           fontSize: Typography.fontSize['3xl'],
           fontWeight: Typography.fontWeight.bold,
           lineHeight: Typography.lineHeight['3xl'],
         };
       case 'h3':
         return {
-          ...baseStyle,
+          ...boldStyle,
           fontSize: Typography.fontSize['2xl'],
           fontWeight: Typography.fontWeight.semibold,
           lineHeight: Typography.lineHeight['2xl'],
         };
       case 'title':
         return {
-          ...baseStyle,
+          ...boldStyle,
           fontSize: Typography.fontSize['4xl'],
           fontWeight: Typography.fontWeight.bold,
           lineHeight: Typography.lineHeight['4xl'],
         };
       case 'heading':
         return {
-          ...baseStyle,
+          ...boldStyle,
           fontSize: Typography.fontSize['2xl'],
           fontWeight: Typography.fontWeight.semibold,
           lineHeight: Typography.lineHeight['2xl'],

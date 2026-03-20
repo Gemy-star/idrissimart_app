@@ -1,7 +1,8 @@
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { CategorySection } from '@/services/api';
-import { FontAwesome5 } from '@expo/vector-icons';
+import { faToIonicon } from '@/utils/iconMap';
+import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import {
     Image,
@@ -57,7 +58,6 @@ export const CategoriesSection: React.FC<CategoriesSectionProps> = ({
           >
             {section.categories.map((category) => {
               const name = isArabic ? category.name_ar : category.name;
-              const iconName = (category.icon.split(' ').pop() || 'folder').replace(/^fa-/, '');
 
               return (
                 <TouchableOpacity
@@ -77,7 +77,7 @@ export const CategoriesSection: React.FC<CategoriesSectionProps> = ({
                     </View>
                   ) : (
                     <View style={[styles.categoryIconContainer, { backgroundColor: colors.primary + '15' }]}>
-                      <FontAwesome5 name={iconName as any} size={32} color={colors.primary} />
+                      <Ionicons name={faToIonicon(category.icon)} size={32} color={colors.primary} />
                     </View>
                   )}
                   

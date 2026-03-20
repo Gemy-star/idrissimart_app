@@ -289,6 +289,38 @@ export interface BlogsListParams {
   author?: number;
   ordering?: string;
   page?: number;
+  tag?: string;
+}
+
+export interface AdImage {
+  id: number;
+  image: string;
+  order: number;
+}
+
+export interface AdReview {
+  id: number;
+  user: number;
+  reviewer_name: string;
+  reviewer_image: string | null;
+  rating: number;
+  comment: string;
+  created_at: string;
+}
+
+export interface AdDetail extends Ad {
+  description: string;
+  address: string;
+  images: AdImage[];
+  is_pinned: boolean;
+  updated_at: string;
+  reviews: AdReview[];
+  custom_fields: Record<string, string>;
+  is_cart_enabled: boolean;
+  video_url: string | null;
+  rating: number;
+  rating_count: number;
+  primary_image: string;
 }
 
 export interface AdsListResponse {
@@ -312,6 +344,7 @@ export interface AdsListParams {
   limit?: number;
   country?: string;
   city?: string;
+  extra_params?: Record<string, string>;
 }
 
 // ==================== End Home Page API Types ====================
@@ -452,12 +485,26 @@ class ApiService {
   // Idrissimart Ads API
   async getAds(params: AdsListParams = {}) {
     const query = new URLSearchParams();
-    Object.entries(params).forEach(([k, v]) => {
+    const { extra_params, ...rest } = params;
+    Object.entries(rest).forEach(([k, v]) => {
       if (v !== undefined && v !== null && v !== '') {
         query.append(k, String(v));
       }
     });
+    if (extra_params) {
+      Object.entries(extra_params).forEach(([k, v]) => {
+        if (v) query.append(k, v);
+      });
+    }
     return this.request<AdsListResponse>(`${this.idrissiMartUrl}/ads/?${query.toString()}`);
+  }
+
+  async getCustomFieldsByCategory(categoryId: number) {
+    return this.request<CustomField[]>(`${this.idrissiMartUrl}/custom-fields/by_category/?category_id=${categoryId}`);
+  }
+
+  async getAdDetail(id: number) {
+    return this.request<AdDetail>(`${this.idrissiMartUrl}/ads/${id}/`);
   }
 }
 

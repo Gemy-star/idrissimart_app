@@ -1,7 +1,8 @@
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Category, api } from '@/services/api';
-import { FontAwesome5 } from '@expo/vector-icons';
+import { faToIonicon } from '@/utils/iconMap';
+import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { Search } from 'lucide-react-native';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
@@ -91,7 +92,6 @@ export default function CategoriesScreen() {
 
   const renderCategory = ({ item }: { item: Category }) => {
     const name = isArabic ? item.name_ar : item.name;
-    const iconName = (item.icon?.split(' ').pop() || 'folder').replace(/^fa-/, '');
     const cardColor = (item as any).color || colors.primary;
 
     return (
@@ -103,7 +103,7 @@ export default function CategoriesScreen() {
         {/* Icon circle */}
         <View style={[styles.iconCircle, { backgroundColor: cardColor + '18' }]}>
           <View style={[styles.iconInner, { backgroundColor: cardColor + '30' }]}>
-            <FontAwesome5 name={iconName as any} size={26} color={cardColor} solid />
+            <Ionicons name={faToIonicon(item.icon ?? '')} size={26} color={cardColor} />
           </View>
         </View>
 
@@ -203,7 +203,7 @@ export default function CategoriesScreen() {
         </View>
       ) : error ? (
         <View style={styles.center}>
-          <FontAwesome5 name="exclamation-circle" size={40} color={colors.fontSecondary} />
+          <Ionicons name="alert-circle-outline" size={40} color={colors.fontSecondary} />
           <Text style={[styles.emptyText, { color: colors.fontSecondary, marginTop: 12 }]}>
             {error}
           </Text>
@@ -233,7 +233,7 @@ export default function CategoriesScreen() {
           }
           ListEmptyComponent={
             <View style={styles.empty}>
-              <FontAwesome5 name="search" size={40} color={colors.fontSecondary} />
+              <Ionicons name="search-outline" size={40} color={colors.fontSecondary} />
               <Text style={[styles.emptyText, { color: colors.fontSecondary }]}>
                 {isArabic ? 'لا توجد نتائج' : 'No results found'}
               </Text>

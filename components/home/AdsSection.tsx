@@ -1,16 +1,25 @@
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Ad } from '@/services/api';
-import { FontAwesome5 } from '@expo/vector-icons';
-import React from 'react';
+import { AppDispatch, RootState } from '@/store';
+import { toggleFavorite } from '@/store/slices/adsSlice';
+import { addToCartThunk } from '@/store/slices/cartSlice';
+import { MAX_COMPARE_ITEMS, toggleCompare } from '@/store/slices/compareSlice';
+import { addToWishlist, removeFromWishlist } from '@/store/slices/wishlistSlice';
+import { Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router';
+import { Eye, MapPin, Scale, Share2, ShoppingCart, Tag } from 'lucide-react-native';
+import React, { useState } from 'react';
 import {
-  Image,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View
+    Alert,
+    Image,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from 'react-native';
+import { useDispatch, useSelector } from 'react-redux';
 
 interface AdsSectionProps {
   title: string;
@@ -19,11 +28,236 @@ interface AdsSectionProps {
   onViewAll?: () => void;
 }
 
-export const AdsSection: React.FC<AdsSectionProps> = ({ 
-  title, 
-  ads, 
+interface AdSectionCardProps {
+  ad: Ad;
+  isArabic: boolean;
+  onPress?: (ad: Ad) => void;
+}
+
+function timeAgo(isoDate: string, isArabic: boolean): string {
+  const diff = Math.max(0, Date.now() - new Date(isoDate).getTime());
+  const mins = Math.floor(diff / 60000);
+  const hours = Math.floor(mins / 60);
+  const days = Math.floor(hours / 24);
+  if (isArabic) {
+    if (mins < 60) return `${mins} د`;
+    if (hours < 24) {
+      const m = mins % 60;
+      return m > 0 ? `${hours} س، ${m} د` : `${hours} س`;
+    }
+    return `${days} يوم`;
+  }
+  if (mins < 60) return `${mins}m`;
+  if (hours < 24) {
+    const m = mins % 60;
+    return m > 0 ? `${hours}h ${m}m` : `${hours}h`;
+  }
+  return `${days}d`;
+}
+
+const AdSectionCard: React.FC<AdSectionCardProps> = ({ ad, isArabic, onPress }) => {
+  const { colors } = useTheme();
+  const { t } = useLanguage();
+  const dispatch = useDispatch<AppDispatch>();
+  const isAuthenticated = useSelector((s: RootState) => s.auth.isAuthenticated);
+  const compareItems = useSelector((s: RootState) => s.compare.items);
+  const cartItems = useSelector((s: RootState) => s.cart.items);
+
+  const [favorited, setFavorited] = useState(ad.is_favorited);
+  const [cartAdded, setCartAdded] = useState(
+    () => cartItems.some((i: any) => (i.ad?.id ?? i.ad) === ad.id)
+  );
+
+  const catName = isArabic ? ad.category.name_ar : ad.category.name;
+  const priceNum = parseFloat(ad.price);
+  const ago = timeAgo(ad.created_at, isArabic);
+  const initials = (ad.user.first_name?.[0] ?? ad.user.username?.[0] ?? '?').toUpperCase();
+  const isVerified = ad.user.verification_status === 'verified';
+  const inCompare = compareItems.some((a: any) => a.id === ad.id);
+
+  const handleFavorite = async () => {
+    if (!isAuthenticated) {
+      Alert.alert('', t('ads.loginToWishlist'), [
+        { text: t('common.cancel'), style: 'cancel' },
+        { text: t('auth.signIn'), onPress: () => router.push('/login') },
+      ]);
+      return;
+    }
+    const next = !favorited;
+    setFavorited(next);
+    try {
+      await dispatch(toggleFavorite(ad.id));
+      if (next) {
+        dispatch(addToWishlist({ id: Date.now(), ad, added_at: new Date().toISOString() }));
+      } else {
+        dispatch(removeFromWishlist(ad.id));
+      }
+    } catch {
+      setFavorited(!next);
+    }
+  };
+
+  const handleCompare = () => {
+    if (!inCompare && compareItems.length >= MAX_COMPARE_ITEMS) {
+      Alert.alert('', t('ads.maxCompare'));
+      return;
+    }
+    dispatch(toggleCompare(ad));
+  };
+
+  const handleAddToCart = async () => {
+    if (!isAuthenticated) {
+      Alert.alert('', t('ads.loginToCart'), [
+        { text: t('common.cancel'), style: 'cancel' },
+        { text: t('auth.signIn'), onPress: () => router.push('/login') },
+      ]);
+      return;
+    }
+    if (cartAdded) return;
+    setCartAdded(true);
+    const result = await dispatch(addToCartThunk({ adId: ad.id }));
+    if (addToCartThunk.rejected.match(result)) {
+      setCartAdded(false);
+      Alert.alert('', t('ads.cartError'));
+    }
+  };
+
+  return (
+    <TouchableOpacity
+      style={[styles.adCard, { backgroundColor: colors.surface }]}
+      onPress={() => {
+        if (onPress) onPress(ad);
+        else router.push(`/ad/${ad.id}` as any);
+      }}
+      activeOpacity={0.85}
+    >
+      {/* Image */}
+      <View style={styles.imageWrap}>
+        <Image source={{ uri: ad.primary_image }} style={StyleSheet.absoluteFill} resizeMode="cover" />
+
+        <View style={styles.badgesTopLeft}>
+          {ad.is_urgent && (
+            <View style={[styles.overlayBadge, { backgroundColor: '#EF4444' }]}>
+              <Text style={styles.overlayBadgeText}>{t('home.urgent')}</Text>
+            </View>
+          )}
+          {ad.is_highlighted && (
+            <View style={[styles.overlayBadge, { backgroundColor: '#F59E0B' }]}>
+              <Ionicons name="star" size={8} color="#fff" />
+              <Text style={styles.overlayBadgeText}> {t('home.featured')}</Text>
+            </View>
+          )}
+        </View>
+
+        <View style={styles.actionBtns}>
+          <TouchableOpacity style={styles.actionBtn} onPress={handleFavorite} hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}>
+            <Ionicons name={favorited ? 'heart' : 'heart-outline'} size={15} color={favorited ? '#EF4444' : colors.text} />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.actionBtn, inCompare && { borderWidth: 2, borderColor: colors.primary }]}
+            onPress={(e) => { e.stopPropagation?.(); handleCompare(); }}
+            hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+          >
+            <Scale size={13} color={inCompare ? colors.primary : colors.text} />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.actionBtn} hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}>
+            <Share2 size={13} color={colors.text} />
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      {/* Body */}
+      <View style={styles.cardBody}>
+        <View style={[styles.catChip, { backgroundColor: colors.primary + '12' }]}>
+          <Tag size={9} color={colors.primary} />
+          <Text style={[styles.catChipText, { color: colors.primary }]} numberOfLines={1}>{catName}</Text>
+        </View>
+
+        <Text style={[styles.cardTitle, { color: colors.text, textAlign: isArabic ? 'right' : 'left' }]} numberOfLines={2}>
+          {ad.title}
+        </Text>
+
+        <View style={[styles.priceRow, isArabic && styles.priceRowRTL]}>
+          <Text style={[styles.cardPrice, { color: colors.secondary }]}>{priceNum.toLocaleString()}</Text>
+          {ad.is_negotiable && (
+            <View style={[styles.negotiablePill, { backgroundColor: colors.primary + '15', borderColor: colors.primary + '30' }]}>
+              <Text style={[styles.negotiableText, { color: colors.primary }]}>{t('home.negotiable')}</Text>
+            </View>
+          )}
+        </View>
+
+        <View style={[styles.cardFooter, isArabic && styles.cardFooterRTL]}>
+          <View style={styles.avatarWrap}>
+            {ad.user.profile_image
+              ? <Image source={{ uri: ad.user.profile_image }} style={styles.avatar} />
+              : <View style={[styles.avatarFallback, { backgroundColor: colors.primary }]}>
+                  <Text style={styles.avatarInitial}>{initials}</Text>
+                </View>
+            }
+            {isVerified && (
+              <View style={[styles.verifiedDot, { backgroundColor: colors.primary }]}>
+                <Ionicons name="checkmark" size={6} color="#fff" />
+              </View>
+            )}
+          </View>
+          <View style={[styles.footerMeta, isArabic && styles.footerMetaRTL]}>
+            <View style={[styles.metaItem, isArabic && styles.metaItemRTL]}>
+              <MapPin size={10} color={colors.fontSecondary} />
+              <Text style={[styles.metaText, { color: colors.fontSecondary }]} numberOfLines={1}>{ad.city}</Text>
+            </View>
+            <View style={styles.metaDivider} />
+            <View style={[styles.metaItem, isArabic && styles.metaItemRTL]}>
+              <Eye size={10} color={colors.fontSecondary} />
+              <Text style={[styles.metaText, { color: colors.fontSecondary }]}>{ad.views_count}</Text>
+            </View>
+            <View style={styles.metaDivider} />
+            <Text style={[styles.metaText, { color: colors.fontSecondary }]}>{ago}</Text>
+          </View>
+        </View>
+
+      </View>
+
+      {/* Action strip */}
+      <View style={[styles.actionStrip, { borderTopColor: colors.border }]}>
+        <TouchableOpacity
+          style={[styles.stripBtn, favorited && { backgroundColor: '#FFF0F0' }]}
+          onPress={handleFavorite}
+          activeOpacity={0.75}
+        >
+          <Ionicons
+            name={favorited ? 'heart' : 'heart-outline'}
+            size={13}
+            color={favorited ? '#EF4444' : colors.fontSecondary}
+          />
+          <Text style={[styles.stripBtnText, { color: favorited ? '#EF4444' : colors.fontSecondary }]} numberOfLines={1}>
+            {favorited ? t('adDetail.unfavorite') : t('adDetail.favorite')}
+          </Text>
+        </TouchableOpacity>
+        {ad.category.allow_cart && (
+          <>
+            <View style={[styles.stripDivider, { backgroundColor: colors.border }]} />
+            <TouchableOpacity
+              style={[styles.stripBtn, cartAdded && { backgroundColor: colors.primary + '12' }]}
+              onPress={handleAddToCart}
+              activeOpacity={0.75}
+            >
+              <ShoppingCart size={13} color={cartAdded ? colors.primary : colors.fontSecondary} />
+              <Text style={[styles.stripBtnText, { color: cartAdded ? colors.primary : colors.fontSecondary }]} numberOfLines={1}>
+                {cartAdded ? t('ads.addedToCart') : t('ads.addToCart')}
+              </Text>
+            </TouchableOpacity>
+          </>
+        )}
+      </View>
+    </TouchableOpacity>
+  );
+};
+
+export const AdsSection: React.FC<AdsSectionProps> = ({
+  title,
+  ads,
   onAdPress,
-  onViewAll 
+  onViewAll,
 }) => {
   const { colors } = useTheme();
   const { language, t } = useLanguage();
@@ -33,102 +267,18 @@ export const AdsSection: React.FC<AdsSectionProps> = ({
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
+      <View style={[styles.header, isArabic && styles.headerRTL]}>
         <Text style={[styles.title, { color: colors.text }]}>{title}</Text>
         {onViewAll && (
           <TouchableOpacity onPress={onViewAll}>
-            <Text style={[styles.viewAll, { color: colors.primary }]}>
-              {t('home.viewAll')}
-            </Text>
+            <Text style={[styles.viewAll, { color: colors.primary }]}>{t('home.viewAll')}</Text>
           </TouchableOpacity>
         )}
       </View>
 
-      <ScrollView 
-        horizontal 
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.adsList}
-      >
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.adsList}>
         {ads.map((ad) => (
-          <TouchableOpacity
-            key={ad.id}
-            style={[styles.adCard, { backgroundColor: colors.surface }]}
-            onPress={() => onAdPress?.(ad)}
-            activeOpacity={0.8}
-          >
-            <View style={styles.imageContainer}>
-              <Image 
-                source={{ uri: ad.primary_image }} 
-                style={styles.adImage}
-                resizeMode="cover"
-              />
-              
-              {ad.is_urgent && (
-                <View style={[styles.badge, styles.urgentBadge]}>
-                  <Text style={styles.badgeText}>{t('home.urgent')}</Text>
-                </View>
-              )}
-              
-              {ad.is_highlighted && (
-                <View style={[styles.badge, styles.featuredBadge]}>
-                  <FontAwesome5 name="star" size={10} color="#fff" />
-                  <Text style={styles.badgeText}> {t('home.featured')}</Text>
-                </View>
-              )}
-
-              <TouchableOpacity style={styles.favoriteButton}>
-                <FontAwesome5 
-                  name={ad.is_favorited ? 'heart' : 'heart'} 
-                  size={16} 
-                  color={ad.is_favorited ? colors.secondary : '#fff'}
-                  solid={ad.is_favorited}
-                />
-              </TouchableOpacity>
-            </View>
-
-            <View style={styles.adContent}>
-              <Text 
-                style={[styles.adTitle, { color: colors.text }]}
-                numberOfLines={2}
-              >
-                {ad.title}
-              </Text>
-
-              <View style={styles.categoryRow}>
-                <FontAwesome5 
-                  name={ad.category.icon.replace('fa-', '') || 'tag'} 
-                  size={10} 
-                  color={colors.fontSecondary} 
-                />
-                <Text style={[styles.categoryText, { color: colors.fontSecondary }]}>
-                  {isArabic ? ad.category.name_ar : ad.category.name}
-                </Text>
-              </View>
-
-              <View style={styles.locationRow}>
-                <FontAwesome5 name="map-marker-alt" size={10} color={colors.fontSecondary} />
-                <Text style={[styles.locationText, { color: colors.fontSecondary }]}>
-                  {ad.city}
-                </Text>
-              </View>
-
-              <View style={styles.footer}>
-                <Text style={[styles.price, { color: colors.secondary }]}>
-                  ${parseFloat(ad.price).toFixed(0)}
-                  {ad.is_negotiable && (
-                    <Text style={styles.negotiable}> {t('home.negotiable')}</Text>
-                  )}
-                </Text>
-                
-                <View style={styles.views}>
-                  <FontAwesome5 name="eye" size={10} color={colors.fontSecondary} />
-                  <Text style={[styles.viewsText, { color: colors.fontSecondary }]}>
-                    {' '}{ad.views_count}
-                  </Text>
-                </View>
-              </View>
-            </View>
-          </TouchableOpacity>
+          <AdSectionCard key={ad.id} ad={ad} isArabic={isArabic} onPress={onAdPress} />
         ))}
       </ScrollView>
     </View>
@@ -146,6 +296,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     marginBottom: 16,
   },
+  headerRTL: { flexDirection: 'row-reverse' },
   title: {
     fontSize: 20,
     fontWeight: 'bold',
@@ -156,105 +307,106 @@ const styles = StyleSheet.create({
   },
   adsList: {
     paddingHorizontal: 16,
+    gap: 12,
   },
   adCard: {
     width: 220,
-    marginRight: 12,
-    borderRadius: 12,
+    borderRadius: 16,
     overflow: 'hidden',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    shadowOpacity: 0.09,
+    shadowRadius: 8,
+    elevation: 4,
   },
-  imageContainer: {
+  imageWrap: {
     width: '100%',
-    height: 160,
+    height: 150,
     position: 'relative',
   },
-  adImage: {
-    width: '100%',
-    height: '100%',
-  },
-  badge: {
-    position: 'absolute',
-    top: 8,
-    left: 8,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 4,
+  badgesTopLeft: { position: 'absolute', top: 8, left: 8, gap: 4 },
+  overlayBadge: {
     flexDirection: 'row',
     alignItems: 'center',
+    paddingHorizontal: 7,
+    paddingVertical: 3,
+    borderRadius: 6,
   },
-  urgentBadge: {
-    backgroundColor: '#EF4444',
-  },
-  featuredBadge: {
-    backgroundColor: '#F59E0B',
-    top: 40,
-  },
-  badgeText: {
-    color: '#fff',
-    fontSize: 10,
-    fontWeight: '600',
-  },
-  favoriteButton: {
+  overlayBadgeText: { color: '#fff', fontSize: 9, fontWeight: '700' },
+  actionBtns: {
     position: 'absolute',
-    top: 8,
-    right: 8,
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    top: 8, right: 8,
+    flexDirection: 'row',
+    gap: 6,
+  },
+  actionBtn: {
+    width: 30, height: 30,
+    borderRadius: 15,
+    backgroundColor: 'rgba(255,255,255,0.92)',
     justifyContent: 'center',
     alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.15,
+    shadowRadius: 3,
+    elevation: 2,
   },
-  adContent: {
-    padding: 12,
-  },
-  adTitle: {
-    fontSize: 14,
-    fontWeight: '600',
-    marginBottom: 8,
-    lineHeight: 20,
-  },
-  categoryRow: {
+  cardBody: { padding: 10, gap: 5 },
+  cardTitle: { fontSize: 13, fontWeight: '700', lineHeight: 19 },
+  catChip: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 4,
+    gap: 4,
+    alignSelf: 'flex-start',
+    paddingHorizontal: 7,
+    paddingVertical: 3,
+    borderRadius: 20,
   },
-  categoryText: {
-    fontSize: 11,
-    marginLeft: 4,
+  catChipText: { fontSize: 10, fontWeight: '600' },
+  priceRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  priceRowRTL: { flexDirection: 'row-reverse' },
+  cardPrice: { fontSize: 16, fontWeight: '800' },
+  negotiablePill: {
+    borderWidth: 1,
+    borderRadius: 20,
+    paddingHorizontal: 7,
+    paddingVertical: 2,
   },
-  locationRow: {
+  negotiableText: { fontSize: 10, fontWeight: '600' },
+  cardFooter: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 2 },
+  cardFooterRTL: { flexDirection: 'row-reverse' },
+  avatarWrap: { position: 'relative', width: 22, height: 22 },
+  avatar: { width: 22, height: 22, borderRadius: 11 },
+  avatarFallback: { width: 22, height: 22, borderRadius: 11, justifyContent: 'center', alignItems: 'center' },
+  avatarInitial: { color: '#fff', fontSize: 9, fontWeight: '800' },
+  verifiedDot: {
+    position: 'absolute',
+    bottom: -1, right: -1,
+    width: 10, height: 10,
+    borderRadius: 5,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#fff',
+  },
+  footerMeta: { flex: 1, flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 4 },
+  footerMetaRTL: { flexDirection: 'row-reverse' },
+  metaItem: { flexDirection: 'row', alignItems: 'center', gap: 3 },
+  metaItemRTL: { flexDirection: 'row-reverse' },
+  metaText: { fontSize: 11 },
+  metaDivider: { width: 3, height: 3, borderRadius: 1.5, backgroundColor: '#D1D5DB' },
+  actionStrip: {
+    flexDirection: 'row',
+    borderTopWidth: StyleSheet.hairlineWidth,
+  },
+  stripBtn: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 8,
+    justifyContent: 'center',
+    gap: 5,
+    paddingVertical: 8,
   },
-  locationText: {
-    fontSize: 11,
-    marginLeft: 4,
-  },
-  footer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  price: {
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  negotiable: {
-    fontSize: 10,
-    fontWeight: 'normal',
-  },
-  views: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  viewsText: {
-    fontSize: 11,
-  },
+  stripBtnText: { fontSize: 12, fontWeight: '600' },
+  stripDivider: { width: StyleSheet.hairlineWidth },
 });

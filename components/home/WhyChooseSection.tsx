@@ -1,7 +1,8 @@
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { HomePage } from '@/services/api';
-import { FontAwesome5 } from '@expo/vector-icons';
+import { faToIonicon } from '@/utils/iconMap';
+import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { Dimensions, StyleSheet, Text, View } from 'react-native';
 
@@ -35,15 +36,13 @@ export const WhyChooseSection: React.FC<WhyChooseSectionProps> = ({ data }) => {
           .map((feature) => {
             const featureTitle = isArabic ? feature.title_ar : feature.title;
             const featureDescription = isArabic ? feature.description_ar : feature.description;
-            const iconName = (feature.icon.split(' ').pop() || 'check-circle').replace(/^fa-/, '');
-
             return (
               <View 
                 key={feature.id} 
                 style={[styles.featureCard, { backgroundColor: colors.surface }]}
               >
                 <View style={[styles.featureIconContainer, { backgroundColor: colors.secondary + '15' }]}>
-                  <FontAwesome5 name={iconName as any} size={28} color={colors.secondary} />
+                  <Ionicons name={faToIonicon(feature.icon)} size={28} color={colors.secondary} />
                 </View>
                 <Text style={[styles.featureTitle, { color: colors.text }]}>
                   {featureTitle}

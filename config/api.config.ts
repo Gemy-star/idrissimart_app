@@ -58,6 +58,8 @@ export const API_ENDPOINTS = {
   AUTH: {
     TOKEN: '/auth/token/',
     REFRESH: '/auth/token/refresh/',
+    FORGOT_PASSWORD: '/auth/forgot-password/',
+    RESET_PASSWORD: '/auth/reset-password/',
   },
   
   // Users
@@ -102,6 +104,7 @@ export const API_ENDPOINTS = {
   // Blog
   BLOG: {
     CATEGORIES: '/blog-categories/',
+    TAGS: '/blog-tags/',
     POSTS: '/blogs/',
     POST_DETAIL: (id: number) => `/blogs/${id}/`,
     LIKE: (id: number) => `/blogs/${id}/like/`,
@@ -120,6 +123,15 @@ export const API_ENDPOINTS = {
   // Wishlist
   WISHLIST: {
     ITEMS: '/wishlist/items/',
+    ADD: '/wishlist/items/',
+    REMOVE: (id: number) => `/wishlist/items/${id}/`,
+  },
+
+  // Cart
+  CART: {
+    ITEMS: '/cart/',
+    ADD: '/cart/add/',
+    ITEM: (id: number) => `/cart/items/${id}/`,
   },
   
   // Notifications

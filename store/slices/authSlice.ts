@@ -31,6 +31,8 @@ interface AuthState {
   isAuthenticated: boolean;
   loading: boolean;
   error: string | null;
+  resetLoading: boolean;
+  resetError: string | null;
 }
 
 const initialState: AuthState = {
@@ -38,6 +40,8 @@ const initialState: AuthState = {
   isAuthenticated: false,
   loading: false,
   error: null,
+  resetLoading: false,
+  resetError: null,
 };
 
 // Async thunks
@@ -125,6 +129,45 @@ export const logout = createAsyncThunk(
   }
 );
 
+export const forgotPassword = createAsyncThunk(
+  'auth/forgotPassword',
+  async (email: string, { rejectWithValue }) => {
+    try {
+      // API always returns 200 regardless of whether email exists (prevents enumeration)
+      await apiClient.post(API_ENDPOINTS.AUTH.FORGOT_PASSWORD, { email });
+    } catch (error: any) {
+      // Unexpected network/server error
+      return rejectWithValue(
+        error.response?.data?.detail ||
+        error.response?.data?.email?.[0] ||
+        'Request failed. Please try again.'
+      );
+    }
+  }
+);
+
+export const resetPassword = createAsyncThunk(
+  'auth/resetPassword',
+  async (
+    payload: { uid: string; token: string; new_password: string; new_password_confirm: string },
+    { rejectWithValue }
+  ) => {
+    try {
+      await apiClient.post(API_ENDPOINTS.AUTH.RESET_PASSWORD, payload);
+    } catch (error: any) {
+      const data = error.response?.data;
+      const message =
+        data?.detail ||
+        data?.token?.[0] ||
+        data?.uid?.[0] ||
+        data?.new_password?.[0] ||
+        data?.non_field_errors?.[0] ||
+        'Password reset failed. The link may be invalid or expired.';
+      return rejectWithValue(message);
+    }
+  }
+);
+
 // Slice
 const authSlice = createSlice({
   name: 'auth',
@@ -132,6 +175,9 @@ const authSlice = createSlice({
   reducers: {
     clearError: (state) => {
       state.error = null;
+    },
+    clearResetError: (state) => {
+      state.resetError = null;
     },
     setUser: (state, action: PayloadAction<User>) => {
       state.user = action.payload;
@@ -203,8 +249,34 @@ const authSlice = createSlice({
       state.isAuthenticated = false;
       state.error = null;
     });
+
+    // Forgot password
+    builder.addCase(forgotPassword.pending, (state) => {
+      state.resetLoading = true;
+      state.resetError = null;
+    });
+    builder.addCase(forgotPassword.fulfilled, (state) => {
+      state.resetLoading = false;
+    });
+    builder.addCase(forgotPassword.rejected, (state, action) => {
+      state.resetLoading = false;
+      state.resetError = action.payload as string;
+    });
+
+    // Reset password
+    builder.addCase(resetPassword.pending, (state) => {
+      state.resetLoading = true;
+      state.resetError = null;
+    });
+    builder.addCase(resetPassword.fulfilled, (state) => {
+      state.resetLoading = false;
+    });
+    builder.addCase(resetPassword.rejected, (state, action) => {
+      state.resetLoading = false;
+      state.resetError = action.payload as string;
+    });
   },
 });
 
-export const { clearError, setUser } = authSlice.actions;
+export const { clearError, clearResetError, setUser } = authSlice.actions;
 export default authSlice.reducer;

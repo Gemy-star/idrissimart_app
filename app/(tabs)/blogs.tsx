@@ -1,7 +1,10 @@
+import { API_ENDPOINTS } from '@/config/api.config';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTheme } from '@/contexts/ThemeContext';
-import { BlogPost, BlogsListParams, api } from '@/services/api';
-import { FontAwesome5 } from '@expo/vector-icons';
+import { BlogCategory, BlogPost, BlogsListParams, api } from '@/services/api';
+import apiClient from '@/services/apiClient';
+import { Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router';
 import { Search, SlidersHorizontal, X } from 'lucide-react-native';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
@@ -10,7 +13,6 @@ import {
     Image,
     Modal,
     RefreshControl,
-    SafeAreaView,
     ScrollView,
     StyleSheet,
     Text,
@@ -18,6 +20,7 @@ import {
     TouchableOpacity,
     View,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const SORT_TO_ORDERING: Record<SortOption, string> = {
   newest:      '-published_date',
@@ -31,11 +34,19 @@ type SortOption = 'newest' | 'oldest' | 'most_viewed' | 'most_liked';
 interface FilterState {
   search: string;
   sort_by: SortOption;
+  category_id: number | null;
+  category_name: string;
+  category_name_ar: string;
+  tag: string;
 }
 
 const DEFAULT_FILTERS: FilterState = {
   search: '',
   sort_by: 'newest',
+  category_id: null,
+  category_name: '',
+  category_name_ar: '',
+  tag: '',
 };
 
 // ── BlogCard ──────────────────────────────────────────────────────────────────
@@ -75,7 +86,7 @@ const BlogCard: React.FC<BlogCardProps> = ({ post, isArabic, colors, t, onPress 
           />
         ) : (
           <View style={[StyleSheet.absoluteFill, styles.imagePlaceholder, { backgroundColor: colors.border }]}>
-            <FontAwesome5 name="book-open" size={24} color={colors.fontSecondary} />
+            <Ionicons name="book-outline" size={24} color={colors.fontSecondary} />
           </View>
         )}
         {/* Category badge */}
@@ -95,12 +106,12 @@ const BlogCard: React.FC<BlogCardProps> = ({ post, isArabic, colors, t, onPress 
         </Text>
 
         {/* Author row */}
-        <View style={[styles.authorRow, { flexDirection: isArabic ? 'row-reverse' : 'row' }]}>
+        <View style={styles.authorRow}>
           {post.author.profile_image ? (
             <Image source={{ uri: post.author.profile_image }} style={styles.avatar} />
           ) : (
             <View style={[styles.avatar, styles.avatarPlaceholder, { backgroundColor: colors.border }]}>
-              <FontAwesome5 name="user" size={10} color={colors.fontSecondary} />
+              <Ionicons name="person-outline" size={10} color={colors.fontSecondary} />
             </View>
           )}
           <Text style={[styles.authorName, { color: colors.fontSecondary }]} numberOfLines={1}>
@@ -109,19 +120,19 @@ const BlogCard: React.FC<BlogCardProps> = ({ post, isArabic, colors, t, onPress 
         </View>
 
         {/* Stats row */}
-        <View style={[styles.statsRow, { flexDirection: isArabic ? 'row-reverse' : 'row' }]}>
+        <View style={styles.statsRow}>
           {formattedDate !== '' && (
-            <View style={[styles.statItem, { flexDirection: isArabic ? 'row-reverse' : 'row' }]}>
-              <FontAwesome5 name="calendar-alt" size={10} color={colors.fontSecondary} />
+            <View style={styles.statItem}>
+              <Ionicons name="calendar-outline" size={10} color={colors.fontSecondary} />
               <Text style={[styles.statText, { color: colors.fontSecondary }]}> {formattedDate}</Text>
             </View>
           )}
-          <View style={[styles.statItem, { flexDirection: isArabic ? 'row-reverse' : 'row' }]}>
-            <FontAwesome5 name="eye" size={10} color={colors.fontSecondary} />
+          <View style={styles.statItem}>
+            <Ionicons name="eye-outline" size={10} color={colors.fontSecondary} />
             <Text style={[styles.statText, { color: colors.fontSecondary }]}> {post.views_count} {t('blogs.views')}</Text>
           </View>
-          <View style={[styles.statItem, { flexDirection: isArabic ? 'row-reverse' : 'row' }]}>
-            <FontAwesome5 name={post.is_liked ? 'heart' : 'heart'} size={10} color={post.is_liked ? '#e74c3c' : colors.fontSecondary} solid={post.is_liked} />
+          <View style={styles.statItem}>
+            <Ionicons name={post.is_liked ? 'heart' : 'heart-outline'} size={10} color={post.is_liked ? '#e74c3c' : colors.fontSecondary} />
             <Text style={[styles.statText, { color: colors.fontSecondary }]}> {post.likes_count} {t('blogs.likes')}</Text>
           </View>
         </View>
@@ -148,7 +159,16 @@ export default function BlogsScreen() {
   const [searchText, setSearchText] = useState('');
   const searchTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const activeFilterCount = [filters.sort_by !== 'newest'].filter(Boolean).length;
+  // Category + tag filter data
+  const [blogCategories, setBlogCategories] = useState<BlogCategory[]>([]);
+  const [blogCategoriesLoading, setBlogCategoriesLoading] = useState(false);
+  const [blogTags, setBlogTags] = useState<string[]>([]);
+
+  const hasCategoryFilter = filters.category_id !== null;
+  const hasTagFilter = filters.tag !== '';
+  const activeFilterCount = (
+    [filters.sort_by !== 'newest', hasCategoryFilter, hasTagFilter].filter(Boolean).length
+  );
 
   const fetchPosts = useCallback(async (
     pageNum: number,
@@ -164,6 +184,8 @@ export default function BlogsScreen() {
         ordering: SORT_TO_ORDERING[currentFilters.sort_by],
       };
       if (currentFilters.search) params.search = currentFilters.search;
+      if (currentFilters.category_id) params.category = currentFilters.category_id;
+      if (currentFilters.tag) params.tag = currentFilters.tag;
 
       const response = await api.getBlogPosts(params);
 
@@ -185,6 +207,41 @@ export default function BlogsScreen() {
     setPage(1);
     fetchPosts(1, filters);
   }, [filters, fetchPosts]);
+
+  // Load blog categories on mount
+  useEffect(() => {
+    setBlogCategoriesLoading(true);
+    apiClient
+      .get(API_ENDPOINTS.BLOG.CATEGORIES)
+      .then(res => {
+        const payload = res.data;
+        const list: BlogCategory[] = Array.isArray(payload)
+          ? payload
+          : Array.isArray(payload?.results)
+          ? payload.results
+          : [];
+        setBlogCategories(list);
+      })
+      .catch(() => setBlogCategories([]))
+      .finally(() => setBlogCategoriesLoading(false));
+
+    // Try to load blog tags — gracefully no-ops if endpoint doesn't exist
+    apiClient
+      .get(API_ENDPOINTS.BLOG.TAGS)
+      .then(res => {
+        const payload = res.data;
+        const raw = Array.isArray(payload)
+          ? payload
+          : Array.isArray(payload?.results)
+          ? payload.results
+          : [];
+        const tags: string[] = raw
+          .map((t: any) => (typeof t === 'string' ? t : t.name ?? t.tag ?? ''))
+          .filter(Boolean);
+        setBlogTags(tags);
+      })
+      .catch(() => setBlogTags([]));
+  }, []);
 
   const handleRefresh = () => {
     setRefreshing(true);
@@ -237,7 +294,7 @@ export default function BlogsScreen() {
       isArabic={isArabic}
       colors={colors}
       t={t}
-      onPress={(post) => console.log('Blog pressed:', post.id)}
+      onPress={(post) => router.push(`/blog/${post.id}` as any)}
     />
   );
 
@@ -285,12 +342,34 @@ export default function BlogsScreen() {
       </View>
 
       {/* ── Active filter chips ── */}
-      {activeFilterCount > 0 && (
+      {(hasCategoryFilter || hasTagFilter || activeFilterCount > 0) && (
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.chipsRow}
         >
+          {hasCategoryFilter && (
+            <TouchableOpacity
+              style={[styles.chip, { backgroundColor: colors.secondary }]}
+              onPress={() => setFilters(prev => ({ ...prev, category_id: null, category_name: '', category_name_ar: '' }))}
+            >
+              <Ionicons name="bookmark-outline" size={11} color="#fff" />
+              <Text style={[styles.chipText, { flexShrink: 1 }]}>
+                {isArabic ? filters.category_name_ar : filters.category_name}
+              </Text>
+              <X size={11} color="#fff" />
+            </TouchableOpacity>
+          )}
+          {hasTagFilter && (
+            <TouchableOpacity
+              style={[styles.chip, { backgroundColor: colors.primary }]}
+              onPress={() => setFilters(prev => ({ ...prev, tag: '' }))}
+            >
+              <Ionicons name="pricetag-outline" size={11} color="#fff" />
+              <Text style={[styles.chipText, { flexShrink: 1 }]}>{filters.tag}</Text>
+              <X size={11} color="#fff" />
+            </TouchableOpacity>
+          )}
           {filters.sort_by !== 'newest' && (
             <TouchableOpacity
               style={[styles.chip, { backgroundColor: colors.primary }]}
@@ -329,7 +408,7 @@ export default function BlogsScreen() {
           onEndReachedThreshold={0.4}
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
-              <FontAwesome5 name="book-open" size={48} color={colors.border} />
+              <Ionicons name="book-outline" size={48} color={colors.border} />
               <Text style={[styles.emptyText, { color: colors.fontSecondary }]}>
                 {t('blogs.noBlogs')}
               </Text>
@@ -366,6 +445,7 @@ export default function BlogsScreen() {
             </View>
 
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.modalBody}>
+              {/* ── Sort ── */}
               <Text style={[styles.sectionLabel, { color: colors.text }]}>{t('blogs.sortBy')}</Text>
               <View style={styles.sortGrid}>
                 {SORT_OPTIONS.map(opt => (
@@ -391,6 +471,94 @@ export default function BlogsScreen() {
                   </TouchableOpacity>
                 ))}
               </View>
+
+              {/* ── Category ── */}
+              <Text style={[styles.sectionLabel, { color: colors.text }]}>{t('blogs.filterByCategory')}</Text>
+              {blogCategoriesLoading ? (
+                <ActivityIndicator size="small" color={colors.primary} style={{ marginVertical: 8 }} />
+              ) : (
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.catScroll}>
+                  {/* "All" chip */}
+                  <TouchableOpacity
+                    style={[
+                      styles.catChip,
+                      {
+                        backgroundColor: draft.category_id === null ? colors.primary : colors.surface,
+                        borderColor: draft.category_id === null ? colors.primary : colors.border,
+                      },
+                    ]}
+                    onPress={() => setDraft(prev => ({ ...prev, category_id: null, category_name: '', category_name_ar: '' }))}
+                  >
+                    <Text style={[styles.catChipText, { color: draft.category_id === null ? '#fff' : colors.text }]}>
+                      {t('blogs.allCategories')}
+                    </Text>
+                  </TouchableOpacity>
+                  {blogCategories.map(cat => {
+                    const catLabel = isArabic ? cat.name : (cat.name_en || cat.name);
+                    const isSelected = draft.category_id === cat.id;
+                    return (
+                      <TouchableOpacity
+                        key={cat.id}
+                        style={[
+                          styles.catChip,
+                          {
+                            backgroundColor: isSelected ? colors.secondary : colors.surface,
+                            borderColor: isSelected ? colors.secondary : colors.border,
+                          },
+                        ]}
+                        onPress={() => setDraft(prev => ({
+                          ...prev,
+                          category_id: cat.id,
+                          category_name: cat.name_en || cat.name,
+                          category_name_ar: cat.name,
+                        }))}
+                      >
+                        {cat.color ? (
+                          <View style={[styles.catDot, { backgroundColor: cat.color }]} />
+                        ) : null}
+                        <Text style={[styles.catChipText, { color: isSelected ? '#fff' : colors.text }]}>
+                          {catLabel}
+                        </Text>
+                        {cat.blogs_count > 0 && (
+                          <Text style={[styles.catChipCount, { color: isSelected ? 'rgba(255,255,255,0.75)' : colors.fontSecondary }]}>
+                            {cat.blogs_count}
+                          </Text>
+                        )}
+                      </TouchableOpacity>
+                    );
+                  })}
+                </ScrollView>
+              )}
+
+              {/* ── Tags (shown only if tags available) ── */}
+              {blogTags.length > 0 && (
+                <>
+                  <Text style={[styles.sectionLabel, { color: colors.text }]}>{t('blogs.tags')}</Text>
+                  <View style={styles.tagsGrid}>
+                    {blogTags.map(tag => {
+                      const isSelected = draft.tag === tag;
+                      return (
+                        <TouchableOpacity
+                          key={tag}
+                          style={[
+                            styles.tagChip,
+                            {
+                              backgroundColor: isSelected ? colors.primary : colors.surface,
+                              borderColor: isSelected ? colors.primary : colors.border,
+                            },
+                          ]}
+                          onPress={() => setDraft(prev => ({ ...prev, tag: isSelected ? '' : tag }))}
+                        >
+                          <Ionicons name="pricetag-outline" size={11} color={isSelected ? '#fff' : colors.fontSecondary} />
+                          <Text style={[styles.tagChipText, { color: isSelected ? '#fff' : colors.text }]}>
+                            {tag}
+                          </Text>
+                        </TouchableOpacity>
+                      );
+                    })}
+                  </View>
+                </>
+              )}
             </ScrollView>
 
             <View style={[styles.modalFooter, { borderTopColor: colors.border }]}>
@@ -539,6 +707,36 @@ const styles = StyleSheet.create({
   sortGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   sortChip: { paddingHorizontal: 14, paddingVertical: 8, borderRadius: 20, borderWidth: 1 },
   sortChipText: { fontSize: 13, fontWeight: '500' },
+
+  // Category filter chips (inside modal)
+  catScroll: { marginTop: 4 },
+  catChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: 20,
+    borderWidth: 1,
+    marginRight: 8,
+  },
+  catDot: { width: 8, height: 8, borderRadius: 4 },
+  catChipText: { fontSize: 13, fontWeight: '500' },
+  catChipCount: { fontSize: 11, fontWeight: '400' },
+
+  // Tag chips (inside modal)
+  tagsGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 4 },
+  tagChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 14,
+    borderWidth: 1,
+  },
+  tagChipText: { fontSize: 12, fontWeight: '500' },
+
   modalFooter: {
     flexDirection: 'row',
     paddingHorizontal: 20,

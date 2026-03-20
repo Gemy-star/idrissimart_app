@@ -1,7 +1,10 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import i18n from 'i18next';
-import React, { createContext, ReactNode, useContext, useState } from 'react';
+import React, { createContext, ReactNode, useContext, useEffect, useState } from 'react';
 import { initReactI18next } from 'react-i18next';
 import { I18nManager } from 'react-native';
+
+const LANG_KEY = 'app_language';
 
 import ar from '@/locales/ar.json';
 import en from '@/locales/en.json';
@@ -42,10 +45,21 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
     (i18n.language.startsWith('ar') ? 'ar' : 'en') as Language
   );
 
+  // Restore persisted language on mount
+  useEffect(() => {
+    AsyncStorage.getItem(LANG_KEY).then((saved) => {
+      if ((saved === 'en' || saved === 'ar') && saved !== i18n.language) {
+        i18n.changeLanguage(saved);
+        setLanguage(saved as Language);
+      }
+    });
+  }, []);
+
   const changeLanguage = async (lang: Language) => {
     try {
       await i18n.changeLanguage(lang);
       setLanguage(lang);
+      await AsyncStorage.setItem(LANG_KEY, lang);
 
       // Handle RTL for Arabic
       const isRTL = lang === 'ar';

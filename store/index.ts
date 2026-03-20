@@ -2,8 +2,10 @@ import { configureStore } from '@reduxjs/toolkit';
 import adsReducer from './slices/adsSlice';
 import authReducer from './slices/authSlice';
 import blogReducer from './slices/blogSlice';
+import cartReducer from './slices/cartSlice';
 import categoriesReducer from './slices/categoriesSlice';
 import chatReducer from './slices/chatSlice';
+import compareReducer from './slices/compareSlice';
 import contactReducer from './slices/contactSlice';
 import countriesReducer from './slices/countriesSlice';
 import customFieldsReducer from './slices/customFieldsSlice';
@@ -30,6 +32,8 @@ export const store = configureStore({
     wishlist: wishlistReducer,
     notifications: notificationsReducer,
     blog: blogReducer,
+    compare: compareReducer,
+    cart: cartReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

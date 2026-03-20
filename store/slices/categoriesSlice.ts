@@ -128,7 +128,12 @@ const categoriesSlice = createSlice({
     });
     builder.addCase(fetchRootCategories.fulfilled, (state, action) => {
       state.loading = false;
-      state.rootCategories = action.payload;
+      const payload = action.payload;
+      state.rootCategories = Array.isArray(payload)
+        ? payload
+        : Array.isArray(payload?.results)
+        ? payload.results
+        : [];
     });
     builder.addCase(fetchRootCategories.rejected, (state, action) => {
       state.loading = false;

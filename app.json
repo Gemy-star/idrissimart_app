@@ -22,8 +22,9 @@
       "buildNumber": "1",
       "icon": "./assets/logos/logo.png",
       "infoPlist": {
-        "NSCameraUsageDescription": "This app uses the camera to take photos for your ads.",
-        "NSPhotoLibraryUsageDescription": "This app needs access to your photo library to upload images for your ads.",
+        "NSCameraUsageDescription": "This app needs access to your camera",
+        "NSPhotoLibraryUsageDescription": "This app needs access to your photo library",
+        "NSPhotoLibraryAddUsageDescription": "This app needs permission to save photos",
         "NSLocationWhenInUseUsageDescription": "This app uses your location to show nearby ads and services."
       }
     },

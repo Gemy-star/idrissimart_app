@@ -1,7 +1,7 @@
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { BlogPost } from '@/services/api';
-import { FontAwesome5 } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import {
     Image,
@@ -110,18 +110,17 @@ export const BlogsSection: React.FC<BlogsSectionProps> = ({
 
               <View style={styles.blogFooter}>
                 <View style={styles.stat}>
-                  <FontAwesome5 name="eye" size={12} color={colors.fontSecondary} />
+                  <Ionicons name="eye-outline" size={12} color={colors.fontSecondary} />
                   <Text style={[styles.statText, { color: colors.fontSecondary }]}>
                     {' '}{blog.views_count}
                   </Text>
                 </View>
 
                 <View style={styles.stat}>
-                  <FontAwesome5 
-                    name="heart" 
-                    size={12} 
+                  <Ionicons
+                    name={blog.is_liked ? 'heart' : 'heart-outline'}
+                    size={12}
                     color={blog.is_liked ? colors.secondary : colors.fontSecondary}
-                    solid={blog.is_liked}
                   />
                   <Text style={[styles.statText, { color: colors.fontSecondary }]}>
                     {' '}{blog.likes_count}
