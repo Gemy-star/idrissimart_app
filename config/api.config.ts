@@ -60,6 +60,8 @@ export const API_ENDPOINTS = {
     REFRESH: '/auth/token/refresh/',
     FORGOT_PASSWORD: '/auth/forgot-password/',
     RESET_PASSWORD: '/auth/reset-password/',
+    SEND_OTP: '/auth/send-otp/',
+    VERIFY_OTP: '/auth/verify-otp/',
   },
   
   // Users
@@ -148,6 +150,16 @@ export const API_ENDPOINTS = {
     AD_PACKAGES: '/ad-packages/',
     PAYMENTS: '/payments/',
     USER_PACKAGES: '/user-packages/',
+  },
+
+  // Payment API
+  PAYMENTS: {
+    LIST: '/payments/',
+    METHODS: '/payments/methods/',
+    INITIATE: '/payments/initiate/',
+    STATUS: (id: number) => `/payments/${id}/payment_status/`,
+    UPLOAD_RECEIPT: (id: number) => `/payments/${id}/upload_receipt/`,
+    PAYPAL_CAPTURE: '/payments/paypal/capture/',
   },
   
   // FAQ & Safety

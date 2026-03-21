@@ -2,6 +2,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { AppDispatch, RootState } from '@/store';
 import { logout } from '@/store/slices/authSlice';
+import PhoneVerificationModal from '@/components/PhoneVerificationModal';
 import { router } from 'expo-router';
 import {
     Bell,
@@ -19,7 +20,7 @@ import {
     UserCircle,
     UserPlus,
 } from 'lucide-react-native';
-import React from 'react';
+import React, { useState } from 'react';
 import {
     Alert,
     Platform,
@@ -95,6 +96,7 @@ export default function ProfileScreen() {
   const isArabic = language === 'ar';
   const dispatch = useDispatch<AppDispatch>();
   const { user, isAuthenticated } = useSelector((s: RootState) => s.auth);
+  const [showVerifyModal, setShowVerifyModal] = useState(false);
 
   const handleLogout = () => {
     Alert.alert(
@@ -301,6 +303,16 @@ export default function ProfileScreen() {
             isArabic={isArabic}
             colors={colors}
           />
+          {!user.is_mobile_verified && (
+            <MenuRow
+              icon={<ShieldCheck size={18} color={colors.warning ?? '#F59E0B'} />}
+              label={t('phoneVerification.verifyPhone')}
+              sublabel={t('phoneVerification.verifyPhoneSublabel')}
+              onPress={() => setShowVerifyModal(true)}
+              isArabic={isArabic}
+              colors={colors}
+            />
+          )}
         </View>
 
         <View style={styles.sectionHeader}>
@@ -357,6 +369,13 @@ export default function ProfileScreen() {
           Idrissimart v1.0.0
         </Text>
       </ScrollView>
+
+      <PhoneVerificationModal
+        visible={showVerifyModal}
+        onClose={() => setShowVerifyModal(false)}
+        initialPhone={user?.phone ?? user?.mobile ?? ''}
+        onSuccess={() => setShowVerifyModal(false)}
+      />
     </View>
   );
 }

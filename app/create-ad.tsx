@@ -1,4 +1,5 @@
 import { API_ENDPOINTS } from '@/config/api.config';
+import PhoneVerificationModal from '@/components/PhoneVerificationModal';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Category, api } from '@/services/api';
@@ -61,11 +62,13 @@ export default function CreateAdScreen() {
     const { t, language } = useLanguage();
     const isArabic = language === 'ar';
     const isAuthenticated = useSelector((s: RootState) => s.auth.isAuthenticated);
+    const user = useSelector((s: RootState) => s.auth.user);
 
     const [form, setForm] = useState<FormState>(INITIAL_FORM);
     const [touched, setTouched] = useState<Record<string, boolean>>({});
     const [submitting, setSubmitting] = useState(false);
     const [images, setImages] = useState<ImagePicker.ImagePickerAsset[]>([]);
+    const [showVerifyModal, setShowVerifyModal] = useState(false);
 
     // Category modal state
     const [catModalVisible, setCatModalVisible] = useState(false);
@@ -213,6 +216,13 @@ export default function CreateAdScreen() {
     const handleSubmit = async () => {
         touchAll();
         if (!isValid) return;
+
+        // Gate behind phone verification
+        if (!user?.is_mobile_verified) {
+            setShowVerifyModal(true);
+            return;
+        }
+
         setSubmitting(true);
         try {
             const effectiveCatId = form.sub_category_id ?? form.category_id;
@@ -662,6 +672,16 @@ export default function CreateAdScreen() {
                     </View>
                 </View>
             </Modal>
+
+            <PhoneVerificationModal
+                visible={showVerifyModal}
+                onClose={() => setShowVerifyModal(false)}
+                initialPhone={user?.phone ?? user?.mobile ?? ''}
+                onSuccess={() => {
+                    setShowVerifyModal(false);
+                    handleSubmit();
+                }}
+            />
         </SafeAreaView>
     );
 }

@@ -1,7 +1,7 @@
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { AppDispatch, RootState } from '@/store';
-import { clearError, login } from '@/store/slices/authSlice';
+import { clearError, getUserRole, login } from '@/store/slices/authSlice';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
@@ -31,7 +31,7 @@ export default function LoginScreen() {
   const { language } = useLanguage();
   const isArabic = language === 'ar';
   const dispatch = useDispatch<AppDispatch>();
-  const { loading, error, isAuthenticated } = useSelector((s: RootState) => s.auth);
+  const { loading, error, isAuthenticated, user } = useSelector((s: RootState) => s.auth);
 
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -50,8 +50,17 @@ export default function LoginScreen() {
   }, []);
 
   useEffect(() => {
-    if (isAuthenticated) router.replace('/(tabs)');
-  }, [isAuthenticated]);
+    if (isAuthenticated && user) {
+      const role = getUserRole(user);
+      if (role === 'admin') {
+        router.replace('/admin-profile' as any);
+      } else if (role === 'publisher') {
+        router.replace('/(tabs)/profile');
+      } else {
+        router.replace('/(tabs)');
+      }
+    }
+  }, [isAuthenticated, user]);
 
   useEffect(() => {
     if (error) {

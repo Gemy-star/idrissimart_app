@@ -186,7 +186,20 @@ export default function CartScreen() {
                         <TouchableOpacity
                             style={[styles.checkoutBtn, { backgroundColor: colors.primary }]}
                             activeOpacity={0.85}
-                            onPress={() => Alert.alert('', isArabic ? 'قريباً' : 'Checkout coming soon')}
+                            onPress={() =>
+                                router.push({
+                                    pathname: '/payment',
+                                    params: {
+                                        amount: total.toFixed(2),
+                                        currency: 'EGP',
+                                        context: 'product_purchase',
+                                        description: `Cart checkout (${items.length} item${items.length === 1 ? '' : 's'})`,
+                                        metadata: JSON.stringify({
+                                            cart_item_ids: items.map((i) => i.id),
+                                        }),
+                                    },
+                                } as any)
+                            }
                         >
                             <ShoppingCart size={20} color="#fff" />
                             <Text style={styles.checkoutBtnText}>{t('cart.checkout')}</Text>

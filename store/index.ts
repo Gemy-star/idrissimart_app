@@ -13,6 +13,7 @@ import faqReducer from './slices/faqSlice';
 import homeReducer from './slices/homeSlice';
 import notificationsReducer from './slices/notificationsSlice';
 import packagesReducer from './slices/packagesSlice';
+import paymentReducer from './slices/paymentSlice';
 import siteReducer from './slices/siteSlice';
 import wishlistReducer from './slices/wishlistSlice';
 
@@ -28,6 +29,7 @@ export const store = configureStore({
     faq: faqReducer,
     home: homeReducer,
     packages: packagesReducer,
+    payment: paymentReducer,
     site: siteReducer,
     wishlist: wishlistReducer,
     notifications: notificationsReducer,

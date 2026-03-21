@@ -14,16 +14,26 @@ export interface User {
   profile_image?: string;
   cover_image?: string;
   bio?: string;
-  profile_type: 'individual' | 'commercial';
+  store_name?: string;
+  profile_type: 'individual' | 'commercial' | 'publisher';
   rank: string;
   verification_status: string;
   is_premium: boolean;
+  is_staff?: boolean;
+  is_superuser?: boolean;
   average_rating?: number;
   total_reviews?: number;
   total_ads?: number;
   active_ads?: number;
   country?: number;
   city?: string;
+  is_mobile_verified?: boolean;
+}
+
+export function getUserRole(user: User): 'admin' | 'publisher' | 'user' {
+  if (user.is_superuser || user.is_staff) return 'admin';
+  if (user.profile_type === 'publisher') return 'publisher';
+  return 'user';
 }
 
 interface AuthState {
@@ -33,6 +43,8 @@ interface AuthState {
   error: string | null;
   resetLoading: boolean;
   resetError: string | null;
+  otpLoading: boolean;
+  otpError: string | null;
 }
 
 const initialState: AuthState = {
@@ -42,6 +54,8 @@ const initialState: AuthState = {
   error: null,
   resetLoading: false,
   resetError: null,
+  otpLoading: false,
+  otpError: null,
 };
 
 // Async thunks
@@ -76,6 +90,7 @@ export const register = createAsyncThunk(
     last_name: string;
     phone?: string;
     mobile?: string;
+    store_name?: string;
     profile_type?: string;
     country?: number;
     city?: string;
@@ -146,6 +161,46 @@ export const forgotPassword = createAsyncThunk(
   }
 );
 
+export const sendOtp = createAsyncThunk(
+  'auth/sendOtp',
+  async (phone: string, { rejectWithValue }) => {
+    try {
+      const response = await apiClient.post(API_ENDPOINTS.AUTH.SEND_OTP, { phone });
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.detail || 'Failed to send verification code'
+      );
+    }
+  }
+);
+
+export const verifyOtp = createAsyncThunk(
+  'auth/verifyOtp',
+  async (otp_code: string, { rejectWithValue }) => {
+    try {
+      const response = await apiClient.post(API_ENDPOINTS.AUTH.VERIFY_OTP, { otp_code });
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.detail || 'Verification failed'
+      );
+    }
+  }
+);
+
+export const checkOtpStatus = createAsyncThunk(
+  'auth/checkOtpStatus',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await apiClient.get(API_ENDPOINTS.AUTH.VERIFY_OTP);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.detail || 'Failed to check status');
+    }
+  }
+);
+
 export const resetPassword = createAsyncThunk(
   'auth/resetPassword',
   async (
@@ -178,6 +233,9 @@ const authSlice = createSlice({
     },
     clearResetError: (state) => {
       state.resetError = null;
+    },
+    clearOtpError: (state) => {
+      state.otpError = null;
     },
     setUser: (state, action: PayloadAction<User>) => {
       state.user = action.payload;
@@ -275,8 +333,44 @@ const authSlice = createSlice({
       state.resetLoading = false;
       state.resetError = action.payload as string;
     });
+
+    // Send OTP
+    builder.addCase(sendOtp.pending, (state) => {
+      state.otpLoading = true;
+      state.otpError = null;
+    });
+    builder.addCase(sendOtp.fulfilled, (state) => {
+      state.otpLoading = false;
+    });
+    builder.addCase(sendOtp.rejected, (state, action) => {
+      state.otpLoading = false;
+      state.otpError = action.payload as string;
+    });
+
+    // Verify OTP
+    builder.addCase(verifyOtp.pending, (state) => {
+      state.otpLoading = true;
+      state.otpError = null;
+    });
+    builder.addCase(verifyOtp.fulfilled, (state) => {
+      state.otpLoading = false;
+      if (state.user) {
+        state.user.is_mobile_verified = true;
+      }
+    });
+    builder.addCase(verifyOtp.rejected, (state, action) => {
+      state.otpLoading = false;
+      state.otpError = action.payload as string;
+    });
+
+    // Check OTP status
+    builder.addCase(checkOtpStatus.fulfilled, (state, action) => {
+      if (state.user && action.payload?.is_mobile_verified !== undefined) {
+        state.user.is_mobile_verified = action.payload.is_mobile_verified;
+      }
+    });
   },
 });
 
-export const { clearError, clearResetError, setUser } = authSlice.actions;
+export const { clearError, clearResetError, clearOtpError, setUser } = authSlice.actions;
 export default authSlice.reducer;
