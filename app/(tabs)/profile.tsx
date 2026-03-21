@@ -1,8 +1,9 @@
+import PhoneVerificationModal from '@/components/PhoneVerificationModal';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { AppDispatch, RootState } from '@/store';
 import { logout } from '@/store/slices/authSlice';
-import PhoneVerificationModal from '@/components/PhoneVerificationModal';
+import { fetchUnreadCount } from '@/store/slices/notificationsSlice';
 import { router } from 'expo-router';
 import {
     Bell,
@@ -20,7 +21,7 @@ import {
     UserCircle,
     UserPlus,
 } from 'lucide-react-native';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     Alert,
     Platform,
@@ -96,7 +97,12 @@ export default function ProfileScreen() {
   const isArabic = language === 'ar';
   const dispatch = useDispatch<AppDispatch>();
   const { user, isAuthenticated } = useSelector((s: RootState) => s.auth);
+  const unreadCount = useSelector((s: RootState) => s.notifications.unreadCount);
   const [showVerifyModal, setShowVerifyModal] = useState(false);
+
+  useEffect(() => {
+    if (isAuthenticated) dispatch(fetchUnreadCount());
+  }, [isAuthenticated]);
 
   const handleLogout = () => {
     Alert.alert(
@@ -332,9 +338,10 @@ export default function ProfileScreen() {
           <MenuRow
             icon={<Bell size={18} color={colors.primary} />}
             label={t('profile.notifications')}
-            onPress={() => {}}
+            onPress={() => router.push('/notifications')}
             isArabic={isArabic}
             colors={colors}
+            badge={unreadCount > 0 ? String(unreadCount > 99 ? '99+' : unreadCount) : undefined}
           />
           <MenuRow
             icon={<ShieldCheck size={18} color={colors.primary} />}

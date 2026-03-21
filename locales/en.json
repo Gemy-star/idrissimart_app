@@ -18,7 +18,11 @@
     "search": "Search listings..."
   },
   "notifications": {
-    "title": "Notifications"
+    "title": "Notifications",
+    "empty": "No notifications yet",
+    "emptySubtitle": "We'll let you know when something happens",
+    "markAllRead": "Mark all read",
+    "unread": "unread"
   },
   "messages": {
     "title": "Messages",
