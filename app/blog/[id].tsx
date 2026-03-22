@@ -25,6 +25,23 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSelector } from 'react-redux';
 
+// ── HTML stripping helper ─────────────────────────────────────────────────────
+const stripHtml = (html: string): string => {
+    return html
+        .replace(/<br\s*\/?>/gi, '\n')
+        .replace(/<\/p>/gi, '\n\n')
+        .replace(/<\/li>/gi, '\n')
+        .replace(/<[^>]*>/g, '')
+        .replace(/&nbsp;/g, ' ')
+        .replace(/&amp;/g, '&')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&quot;/g, '"')
+        .replace(/&#39;/g, "'")
+        .replace(/\n{3,}/g, '\n\n')
+        .trim();
+};
+
 // ── Comment item (recursive for replies) ──────────────────────────────────────
 interface CommentItemProps {
     comment: BlogComment;
@@ -48,7 +65,20 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment, isArabic, colors, t,
         : '';
 
     return (
-        <View style={[styles.commentItem, depth > 0 && styles.replyItem, depth > 0 && { borderLeftColor: colors.primary + '40' }]}>
+        <View style={[
+            styles.commentItem,
+            depth > 0 && styles.replyItem,
+            depth > 0 && {
+                borderLeftWidth: isArabic ? 0 : 2,
+                borderRightWidth: isArabic ? 2 : 0,
+                borderLeftColor: isArabic ? 'transparent' : colors.primary + '40',
+                borderRightColor: isArabic ? colors.primary + '40' : 'transparent',
+                marginLeft: isArabic ? 0 : 16,
+                marginRight: isArabic ? 16 : 0,
+                paddingLeft: isArabic ? 0 : 12,
+                paddingRight: isArabic ? 12 : 0,
+            },
+        ]}>
             <View style={styles.commentHeader}>
                 {comment.author.profile_image ? (
                     <Image source={{ uri: comment.author.profile_image }} style={styles.commentAvatar} />
@@ -67,7 +97,7 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment, isArabic, colors, t,
                     </TouchableOpacity>
                 )}
             </View>
-            <Text style={[styles.commentBody, { color: colors.text }]}>{comment.body}</Text>
+            <Text style={[styles.commentBody, { color: colors.text, paddingLeft: isArabic ? 0 : 42, paddingRight: isArabic ? 42 : 0 }]}>{comment.body}</Text>
             {(comment.replies ?? []).map(reply => (
                 <CommentItem
                     key={reply.id}
@@ -110,7 +140,7 @@ export default function BlogDetailScreen() {
         setLoading(true);
         setError(false);
         apiClient
-            .get(API_ENDPOINTS.BLOG.POST_DETAIL(Number(id)))
+            .get(API_ENDPOINTS.BLOG.POST_DETAIL(id))
             .then(res => {
                 const data: BlogPostDetail = res.data;
                 setPost(data);
@@ -118,7 +148,10 @@ export default function BlogDetailScreen() {
                 setLikesCount(data.likes_count ?? 0);
                 setComments(data.comments ?? []);
             })
-            .catch(() => setError(true))
+            .catch((err) => {
+                console.error('[BlogDetail] fetch failed:', err?.response?.status, err?.response?.data ?? err?.message);
+                setError(true);
+            })
             .finally(() => setLoading(false));
     }, [id]);
 
@@ -127,13 +160,14 @@ export default function BlogDetailScreen() {
             Alert.alert('', t('blogs.loginToLike'));
             return;
         }
+        if (!post) return;
         setLikeLoading(true);
         try {
-            const res = await apiClient.post(API_ENDPOINTS.BLOG.LIKE(Number(id)));
+            const res = await apiClient.post(API_ENDPOINTS.BLOG.LIKE(post.id));
             setLiked(res.data.status === 'liked');
             setLikesCount(res.data.likes_count);
         } catch {
-            // silently ignore
+            Alert.alert('', t('blogs.likeError'));
         } finally {
             setLikeLoading(false);
         }
@@ -167,10 +201,9 @@ export default function BlogDetailScreen() {
 
         setCommentLoading(true);
         try {
-            const res = await apiClient.post(API_ENDPOINTS.BLOG.COMMENT(Number(id)), {
-                body,
-                parent: replyTo?.id ?? null,
-            });
+            const payload: Record<string, unknown> = { body };
+            if (replyTo?.id) payload.parent = replyTo.id;
+            const res = await apiClient.post(API_ENDPOINTS.BLOG.COMMENT(post!.id), payload);
             const newComment: BlogComment = res.data;
             if (replyTo) {
                 setComments(prev =>
@@ -372,7 +405,7 @@ export default function BlogDetailScreen() {
                         </View>
 
                         {/* Content */}
-                        <Text style={[styles.content, { color: colors.text }]}>{post.content}</Text>
+                        <Text style={[styles.content, { color: colors.text }]}>{stripHtml(post.content || '')}</Text>
 
                         {/* Tags */}
                         {post.tags && post.tags.length > 0 && (
@@ -571,7 +604,7 @@ const styles = StyleSheet.create({
     noCommentsText: { fontSize: 14, textAlign: 'center' },
 
     commentItem: { paddingVertical: 12, gap: 6 },
-    replyItem: { marginLeft: 16, paddingLeft: 12, borderLeftWidth: 2 },
+    replyItem: {},
     commentHeader: { flexDirection: 'row', alignItems: 'center', gap: 10 },
     commentAvatar: { width: 32, height: 32, borderRadius: 16 },
     commentAvatarPlaceholder: { alignItems: 'center', justifyContent: 'center' },
@@ -579,7 +612,7 @@ const styles = StyleSheet.create({
     commentDate: { fontSize: 11 },
     replyBtn: { paddingHorizontal: 8, paddingVertical: 4 },
     replyBtnText: { fontSize: 12, fontWeight: '600' },
-    commentBody: { fontSize: 14, lineHeight: 20, paddingLeft: 42 },
+    commentBody: { fontSize: 14, lineHeight: 20 },
 
     // Comment input bar
     commentBar: { borderTopWidth: 1, paddingBottom: Platform.OS === 'android' ? 8 : 0 },

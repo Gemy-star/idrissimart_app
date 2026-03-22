@@ -91,7 +91,7 @@ const BlogCard: React.FC<BlogCardProps> = ({ post, isArabic, colors, t, onPress 
         )}
         {/* Category badge */}
         {post.category && (
-          <View style={[styles.categoryBadge, { backgroundColor: post.category.color || colors.primary }]}>
+          <View style={[styles.categoryBadge, { backgroundColor: post.category.color || colors.primary, [isArabic ? 'right' : 'left']: 10 }]}>
             <Text style={styles.categoryBadgeText} numberOfLines={1}>
               {isArabic ? post.category.name : (post.category.name_en || post.category.name)}
             </Text>
@@ -340,6 +340,97 @@ export default function BlogsScreen() {
           </TouchableOpacity>
         )}
       </View>
+
+      {/* ── Quick Category Filter ── */}
+      {(blogCategoriesLoading || blogCategories.length > 0) && (
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.quickFilterRow}
+        >
+          {blogCategoriesLoading ? (
+            <ActivityIndicator size="small" color={colors.primary} style={{ marginHorizontal: 8 }} />
+          ) : (
+            <>
+              <TouchableOpacity
+                style={[styles.quickChip, {
+                  backgroundColor: !filters.category_id ? colors.primary : colors.surface,
+                  borderColor: !filters.category_id ? colors.primary : colors.border,
+                }]}
+                onPress={() => setFilters(prev => ({ ...prev, category_id: null, category_name: '', category_name_ar: '' }))}
+              >
+                <Text style={[styles.quickChipText, { color: !filters.category_id ? '#fff' : colors.text }]}>
+                  {t('blogs.allCategories')}
+                </Text>
+              </TouchableOpacity>
+              {blogCategories.map(cat => {
+                const isSelected = filters.category_id === cat.id;
+                const catLabel = isArabic ? cat.name : (cat.name_en || cat.name);
+                return (
+                  <TouchableOpacity
+                    key={cat.id}
+                    style={[styles.quickChip, {
+                      backgroundColor: isSelected ? (cat.color || colors.secondary) : colors.surface,
+                      borderColor: isSelected ? (cat.color || colors.secondary) : colors.border,
+                    }]}
+                    onPress={() => setFilters(prev => ({
+                      ...prev,
+                      category_id: isSelected ? null : cat.id,
+                      category_name: isSelected ? '' : (cat.name_en || cat.name),
+                      category_name_ar: isSelected ? '' : cat.name,
+                    }))}
+                  >
+                    {cat.color && !isSelected && <View style={[styles.quickDot, { backgroundColor: cat.color }]} />}
+                    <Text style={[styles.quickChipText, { color: isSelected ? '#fff' : colors.text }]}>
+                      {catLabel}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </>
+          )}
+        </ScrollView>
+      )}
+
+      {/* ── Quick Tags Filter ── */}
+      {blogTags.length > 0 && (
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.quickFilterRow}
+        >
+          <TouchableOpacity
+            style={[styles.quickChip, {
+              backgroundColor: !filters.tag ? colors.primary : colors.surface,
+              borderColor: !filters.tag ? colors.primary : colors.border,
+            }]}
+            onPress={() => setFilters(prev => ({ ...prev, tag: '' }))}
+          >
+            <Ionicons name="pricetag-outline" size={11} color={!filters.tag ? '#fff' : colors.fontSecondary} />
+            <Text style={[styles.quickChipText, { color: !filters.tag ? '#fff' : colors.text }]}>
+              {t('blogs.allTags')}
+            </Text>
+          </TouchableOpacity>
+          {blogTags.map(tag => {
+            const isSelected = filters.tag === tag;
+            return (
+              <TouchableOpacity
+                key={tag}
+                style={[styles.quickChip, {
+                  backgroundColor: isSelected ? colors.primary : colors.surface,
+                  borderColor: isSelected ? colors.primary : colors.border,
+                }]}
+                onPress={() => setFilters(prev => ({ ...prev, tag: isSelected ? '' : tag }))}
+              >
+                <Ionicons name="pricetag-outline" size={11} color={isSelected ? '#fff' : colors.fontSecondary} />
+                <Text style={[styles.quickChipText, { color: isSelected ? '#fff' : colors.text }]}>
+                  {tag}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </ScrollView>
+      )}
 
       {/* ── Active filter chips ── */}
       {(hasCategoryFilter || hasTagFilter || activeFilterCount > 0) && (
@@ -668,7 +759,6 @@ const styles = StyleSheet.create({
   categoryBadge: {
     position: 'absolute',
     top: 10,
-    left: 10,
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 8,
@@ -679,14 +769,14 @@ const styles = StyleSheet.create({
   cardTitle: { fontSize: 15, fontWeight: '600', lineHeight: 21 },
 
   // Author row
-  authorRow: { alignItems: 'center', gap: 7 },
+  authorRow: { flexDirection: 'row', alignItems: 'center', gap: 7 },
   avatar: { width: 24, height: 24, borderRadius: 12 },
   avatarPlaceholder: { alignItems: 'center', justifyContent: 'center' },
   authorName: { fontSize: 12, flex: 1 },
 
   // Stats row
-  statsRow: { alignItems: 'center', gap: 12, flexWrap: 'wrap' },
-  statItem: { alignItems: 'center', gap: 3 },
+  statsRow: { flexDirection: 'row', alignItems: 'center', gap: 12, flexWrap: 'wrap' },
+  statItem: { flexDirection: 'row', alignItems: 'center', gap: 3 },
   statText: { fontSize: 11 },
 
   // Modal
@@ -723,6 +813,20 @@ const styles = StyleSheet.create({
   catDot: { width: 8, height: 8, borderRadius: 4 },
   catChipText: { fontSize: 13, fontWeight: '500' },
   catChipCount: { fontSize: 11, fontWeight: '400' },
+
+  // Quick filter strips (on-screen)
+  quickFilterRow: { paddingHorizontal: 16, paddingBottom: 8, paddingTop: 2, gap: 8, flexDirection: 'row' },
+  quickChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: 20,
+    borderWidth: 1,
+  },
+  quickDot: { width: 7, height: 7, borderRadius: 3.5 },
+  quickChipText: { fontSize: 13, fontWeight: '500' },
 
   // Tag chips (inside modal)
   tagsGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 4 },

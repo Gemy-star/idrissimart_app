@@ -1,11 +1,11 @@
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { AppDispatch, RootState } from '@/store';
+import type { Notification } from '@/store/slices/notificationsSlice';
 import {
     fetchNotifications,
     markAllNotificationsAsRead,
     markNotificationAsRead,
-    Notification,
 } from '@/store/slices/notificationsSlice';
 import { router } from 'expo-router';
 import {

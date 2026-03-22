@@ -108,9 +108,9 @@ export const API_ENDPOINTS = {
     CATEGORIES: '/blog-categories/',
     TAGS: '/blog-tags/',
     POSTS: '/blogs/',
-    POST_DETAIL: (id: number) => `/blogs/${id}/`,
-    LIKE: (id: number) => `/blogs/${id}/like/`,
-    COMMENT: (id: number) => `/blogs/${id}/comment/`,
+    POST_DETAIL: (id: string | number) => `/blogs/${id}/`,
+    LIKE: (id: string | number) => `/blogs/${id}/like/`,
+    COMMENT: (id: string | number) => `/blogs/${id}/comment/`,
   },
   
   // Chat / Messaging

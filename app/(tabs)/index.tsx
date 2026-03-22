@@ -5,14 +5,14 @@ import { api } from '@/services/api';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import {
-  ActivityIndicator,
-  RefreshControl,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    RefreshControl,
+    ScrollView,
+    StatusBar,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 
 // Home Components
@@ -178,13 +178,8 @@ export default function HomeScreen() {
       {homeData?.latest_blogs && homeData.latest_blogs.length > 0 && (
         <BlogsSection 
           blogs={homeData.latest_blogs}
-          onBlogPress={(blog) => {
-            console.log('Blog pressed:', blog.id);
-            // Navigate to blog details
-          }}
-          onViewAll={() => {
-            console.log('View all blogs');
-          }}
+          onBlogPress={(blog) => router.push(`/blog/${blog.id}` as any)}
+          onViewAll={() => router.push('/(tabs)/blogs' as any)}
         />
       )}
 

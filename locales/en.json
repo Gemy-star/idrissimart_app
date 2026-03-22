@@ -372,10 +372,12 @@
     "loginToLike": "Sign in to like this article",
     "loginToComment": "Sign in to add a comment",
     "commentPosted": "Comment posted!",
+    "likeError": "Failed to update like",
     "commentError": "Failed to post comment",
     "publishedOn": "Published",
     "updatedOn": "Updated",
-    "relatedTags": "Tags"
+    "relatedTags": "Tags",
+    "allTags": "All Tags"
   },
   "wishlist": {
     "title": "Wishlist",

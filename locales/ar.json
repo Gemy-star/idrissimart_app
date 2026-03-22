@@ -372,10 +372,12 @@
     "loginToLike": "سجّل الدخول للإعجاب بهذا المقال",
     "loginToComment": "سجّل الدخول لإضافة تعليق",
     "commentPosted": "تم نشر التعليق!",
+    "likeError": "فشل تحديث الإعجاب",
     "commentError": "فشل نشر التعليق",
     "publishedOn": "نشر في",
     "updatedOn": "تحديث",
-    "relatedTags": "وسوم"
+    "relatedTags": "وسوم",
+    "allTags": "جميع الوسوم"
   },
   "wishlist": {
     "title": "المفضلة",
